@@ -11,7 +11,15 @@
 ;; --- GENERAL AUXILLARY FUNCTIONS ---
 ;;
 
-
+(defun convert-to-cdf (π)
+  "Converts a distribution vector into a cumulative distribution vector.
+  Example: (convert-pdf-to-cdf '(.23 .25 .26 .26))"
+  (flet ((cdf-aux (π cdf-vector)
+	   (if (null π)
+	       cdf-vector
+	       (cdf-aux (rest π) (cons (apply '+ π) cdf-vector)))))
+    (cdf-aux π nil)))
+	   
 (defun draw-exponential (λ)
   "Return a number drawn according to a rate λ exponential random variable.
 Based on code from https://github.com/tpapp/cl-random. If λ=0, return positive
@@ -270,10 +278,7 @@ infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
   vector π (which should sum to one). By default, if no probability distribution
   is given, output a uniformly chosen nucleotide."
   (let ((x (random 1d0))
-	(cdf (list (first π)
-		   (+ (first π) (second π))
-		   (+ (first π) (second π) (third π))
-   		   (+ (first π) (second π) (third π) (fourth π)))))
+	(cdf (convert-to-cdf π)))
     (cond ((< x (first cdf)) 'A)
 	  ((and (>= x (first cdf)) (< x (second cdf))) 'T)
 	  ((and (>= x (second cdf)) (< x (third cdf))) 'C)
