@@ -11,19 +11,35 @@
 ;; --- GENERAL AUXILLARY FUNCTIONS ---
 ;;
 
+;; (defun convert-to-cdf (π)
+;;   "Converts a distribution vector into a cumulative distribution vector. (Not working for some reason)
+;;   Example: (convert-pdf-to-cdf '(.23 .25 .26 .26))"
+;;   (flet ((cdf-aux (π cdf-vector)
+;; 	   (if (null π)
+;; 	       cdf-vector
+;; 	       (cdf-aux (butlast π)
+;; 			(cons (apply '+ π) cdf-vector)))))
+;; 	(cdf-aux π nil)))
+
 (defun convert-to-cdf (π)
   "Converts a distribution vector into a cumulative distribution vector.
   Example: (convert-pdf-to-cdf '(.23 .25 .26 .26))"
-  (flet ((cdf-aux (π cdf-vector)
-	   (if (null π)
-	       cdf-vector
-	       (cdf-aux (rest π) (cons (apply '+ π) cdf-vector)))))
-    (cdf-aux π nil)))
-	   
+  (cdf-aux π nil))
+
+(defun cdf-aux (π cdf-vector)
+  "Auxillary function to convert-to-cdf"
+  (if (null π)
+      cdf-vector
+      (cdf-aux (butlast π)
+	       (cons (apply '+ π) cdf-vector))))
+
+
+
+
 (defun draw-exponential (λ)
   "Return a number drawn according to a rate λ exponential random variable.
-Based on code from https://github.com/tpapp/cl-random. If λ=0, return positive
-infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
+  Based on code from https://github.com/tpapp/cl-random. If λ=0, return positive
+  infinity, represented by most-positive-long-float (1.7976931348623157d308)."
   (if (zerop λ)
       most-positive-long-float
       (- (/ (log (- 1 (random 1d0))) λ))))
@@ -112,7 +128,7 @@ infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
 
 (defun sample-one-locus (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)
   "Input a parameter regime. Construct an ancestral recombination graph on three
-  species and then output a list of locus distances (d_AB, d_AC, d_BC)."
+  species and then output a binary vector indicating which JC distance is the smallest. (1_AB, 1_AC, 1_BC)."
   (let* ((output-edges (simulate-three-species τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs))
 	 (d-ab (compute-weighted-jc-distance 1 2 output-edges θ number-of-base-pairs))
 	 (d-ac (compute-weighted-jc-distance 1 3 output-edges θ number-of-base-pairs))
@@ -124,6 +140,8 @@ infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
 	  ((and (< d-bc d-ab) (< d-bc d-ac))
 	   (list 0 0 1))
 	  (t (list 0 0 0)))))
+
+
 
 (defun estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
   "Use SLLN to estimate the probabilities of inferring each species tree
@@ -273,6 +291,16 @@ infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
 ;; --- IMPLEMENTING MUTATIONS ---
 ;;
 
+(defun list-all-pairwise-marginal-distances (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)
+  "Simulate a tree and return a list of triplets, each corresponding to a base pair on the locus. Each triplet is of the form (t_ab,t_ab,t_bc) where t_xy is the time of mrca of species x and y in marginal gene tree corresponding to the base pair."
+  (let* ((output-edges (simulate-three-species τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs))
+	 (t_ab-list (compute-marginal-tmrcas 1 2 output-edges number-of-base-pairs))
+	 (t_ac-list (compute-marginal-tmrcas 1 3 output-edges number-of-base-pairs))
+	 (t_bc-list (compute-marginal-tmrcas 2 3 output-edges number-of-base-pairs)))
+    (loop for position from 0 to (- number-of-base-pairs 1)
+	  collecting (list (nth position  t_ab-list) (nth position  t_ac-list) (nth position  t_bc-list)))))
+
+
 (defun draw-random-nucleotide (&optional (π '(.25 .25 .25 .25)))
   "Output a nucleotide A,T,C or G according to the given distribution (density)
   vector π (which should sum to one). By default, if no probability distribution
@@ -306,6 +334,23 @@ infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
 					    (mutate base)
 					    θ))))
 
+
+(defun generate-sequences-for-sampled-locus (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
+  "Generate an ARG, then for each base pair and each pair of species A,B,C,
+   compute the marginal times until MRCA and use those to generate nucleotide
+   sequences for each species. Output is a list of triplets of the form (A A T)
+   or (A C T) where the nth element of the list gives the nth base pair sampled
+   from species A, B and C respectively."
+  (let* ((pairwise-marginal-distances (list-all-pairwise-marginal-distances τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
+    (loop for position from 0 to (- number-of-base-pairs 1)
+	  collecting (generate-nucleotide-for-species-triplet (first (nth position pairwise-marginal-distances))
+							      (second (nth position pairwise-marginal-distances))
+							      (third (nth position pairwise-marginal-distances))
+							      θ))))
+
+
+
+	   
 (defun generate-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
   "Input: mutation parameter and time of MRCA (on a marginal gene tree) for each
   pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A
@@ -330,24 +375,10 @@ infinity, represented by the most-positive-long-float (1.7976931348623157d308)."
 
 
 ;;
-;; --- OLD CODE FOR TESTING ---
+;; --- CODE FOR GENERATING OUTPUT FILES ---
 ;;
-
-;; TESTING CODE (probably not needed anymore)
-;;
-;; here are two examples of edges
-;; (setf p1 `(0 ,(interval 1 10) ,(interval 15 20) nil))
-;; (setf p2 `(0 nil ,(interval 1 10) nil))
-;; example testing code
-;; (make-coalescent-parent .2 `(,p1 ,p2))
-
-
-;; WORKING EXAMPLE CODE: here we define three initial edges p1 p2 and p3,
-;; and (P,Q) is defined as ((p1 p2 p3) nil) (acutally just ((p1 p2 p3)) but this
-;; is the same in lisp.
-;; (setf p1 `(0 ,(interval 1 *number-of-base-pairs*) nil nil))
-;; (setf p2 `(0 nil ,(interval 1 *number-of-base-pairs*) nil))
-;; (setf p3 `(0 nil nil ,(interval 1 *number-of-base-pairs*)))
-;; (setf edge-sets (cons (list p1 p2 p3) nil))
-
+(with-open-file (stream "test.out" :direction :output
+                                   :if-does-not-exist :create
+			           :if-exists :append)
+  (format stream (format nil "~a~%"'(1 2 3))))
 
