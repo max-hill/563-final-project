@@ -8,4 +8,4 @@ I'm not sure what my final pipeline will look like yet. As of now, the file [arg
 * Write a program to explore the parameter space for consistency of R*. Still waiting on some computer parts to arrive before I implements this.
 * Implement data analysis in some language other than lisp (i.e. python, julia, or R). There are two reasons for this: (1) it's prettier, since math equations are kind of ugly in lisp; (2) I need to make plots. Ultimately I want a pretty, graphical depiction of the anomolous zone.
 * Figure out what format the output sequences should be for, say, *BEAST.
-
+* Write lisp programs so that they can be piped (i.e. with standard input and standard output). I want to be able to run my pipeline entirely from the terminal, without opening a lisp REPL.
