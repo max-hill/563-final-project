@@ -229,7 +229,8 @@
   "Updates the edge-sets (p,q) appropriately for when a recombination occurs at
   the given time."
   (let* ((recombination-child (randomly-choose (first edge-sets)))
-	 (recombination-parents (make-recombination-parents time recombination-child number-of-base-pairs))
+	 (breakpoint (+ 1 (random (- number-of-base-pairs 1))))
+	 (recombination-parents (make-recombination-parents time recombination-child breakpoint))
 	 (new-p (cons (first recombination-parents)
 		      (cons (second recombination-parents)
 			    (remove-elements
@@ -241,28 +242,19 @@
       (list new-p (second edge-sets)))))
 
 
-(defun make-recombination-parents (time edge number-of-base-pairs)
-  "Creates both parent edges of a recombining child edge.  Working example: 
-(make-recombinant-parents .3 `(.1 ,(interval 1 7) ,(interval 3 6) ,(interval 2 10)))"
-  (let ((breakpoint (+ 1 (random (1- number-of-base-pairs)))))
+(defun make-recombination-parents (time edge breakpoint)
+  "Creates both parents of a specified recombining child edge. Outputs a list containing the left and right parent, where the left (right) parent contains only genetic labels less than or equal to (greater than) the breakpoint. Working example:  (make-recombination-parents .3 `(.1 ,(interval 1 7) ,(interval 3 6) ,(interval 2 10)) 10)"
+  (let* ((paired-list
+	   (mapcar
+	    #'(lambda (label-set)
+		(loop for item in label-set
+		      if (<= item breakpoint) collect item into left-part
+			else collect item into right-part
+		      finally (return (list left-part right-part))))
+	    (rest edge))))
     (list
-     (list time
-	  (keep-left-part (second edge) breakpoint)
-	  (keep-left-part (third edge) breakpoint)
-	  (keep-left-part (fourth edge) breakpoint))
-     (list time
-	  (keep-right-part (second edge) breakpoint)
-	  (keep-right-part (third edge) breakpoint)
-	  (keep-right-part (fourth edge) breakpoint)))))
-
-(defun keep-left-part (initial-set breakpoint)
-  "Remove elements to the right of the breakpoint."
-  (remove-if #'(lambda (element) (> element breakpoint)) initial-set))
-
-(defun keep-right-part (initial-set breakpoint)
-  "Remove elements less than or equal to (i.e. to the left of) the breakpoint."
-  (remove-if #'(lambda (element) (<= element breakpoint)) initial-set))
-
+     (cons time (mapcar #'first paired-list))
+     (cons time (mapcar #'second paired-list)))))
 
 (defun implement-coalescence (time edge-sets)
   "Updates the edge-sets (p,q) appropriately for when a recombination occurs at
