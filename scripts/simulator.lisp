@@ -1,7 +1,7 @@
 ;;;; simulator.lisp --- Simulate a multispecies coalescent with recombination
 ;; 
 ;; Author: max hill 
-;; (Last updated 2021-03-09)
+;; (Last updated 2021-03-11)
 
 ;; DESCRIPTION: This file contains all general functions for simulating the
 ;; multispecies coalescent with recombination on a species triplet with topology
@@ -147,6 +147,10 @@ given mutation parameter θ"
        (loop for t_mrca in list-of-t_mrcas
 	     summing (compute-integrand t_mrca θ))))))
 
+
+
+;; Old version of these functions 2021-03-11
+;;
 ;; (defun compute-weighted-jc-distance (species1 species2 output-edges θ number-of-base-pairs)
 ;;   "Compute the weighted Jukes-Cantor distance between species1 and species2
 ;; given mutation parameter θ."
@@ -154,42 +158,71 @@ given mutation parameter θ"
 ;;      (reduce #'+ (mapcar #'(lambda (x)
 ;; 			     (- 1 (exp (* -1 (/ (* 8 θ x) 3)))))
 ;; 			 (compute-marginal-tmrcas species1 species2 output-edges number-of-base-pairs)))))
+;;
+;;
+;; (defun sample-one-locus (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)
+;;   "Input a parameter regime. Construct an ancestral recombination graph on three
+;; species and then output a binary vector indicating which JC distance is the
+;; smallest. (1_AB, 1_AC, 1_BC)."
+;;   (let* ((output-edges (simulate-three-species τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs))
+;; 	 (d-ab (compute-weighted-jc-distance 1 2 output-edges θ number-of-base-pairs))
+;; 	 (d-ac (compute-weighted-jc-distance 1 3 output-edges θ number-of-base-pairs))
+;; 	 (d-bc (compute-weighted-jc-distance 2 3 output-edges θ number-of-base-pairs)))
+;;     (cond ((and (< d-ab d-ac) (< d-ab d-bc))
+;; 	   (list 1 0 0))
+;; 	  ((and (< d-ac d-ab) (< d-ac d-bc))
+;; 	   (list 0 1 0))
+;; 	  ((and (< d-bc d-ab) (< d-bc d-ac))
+;; 	   (list 0 0 1))
+;; 	  (t (list 0 0 0)))))
 
-
-
-(defun sample-one-locus (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)
-  "Input a parameter regime. Construct an ancestral recombination graph on three
-species and then output a binary vector indicating which JC distance is the
-smallest. (1_AB, 1_AC, 1_BC)."
-  (let* ((output-edges (simulate-three-species τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs))
-	 (d-ab (compute-weighted-jc-distance 1 2 output-edges θ number-of-base-pairs))
-	 (d-ac (compute-weighted-jc-distance 1 3 output-edges θ number-of-base-pairs))
-	 (d-bc (compute-weighted-jc-distance 2 3 output-edges θ number-of-base-pairs)))
-    (cond ((and (< d-ab d-ac) (< d-ab d-bc))
-	   (list 1 0 0))
-	  ((and (< d-ac d-ab) (< d-ac d-bc))
-	   (list 0 1 0))
-	  ((and (< d-bc d-ab) (< d-bc d-ac))
-	   (list 0 0 1))
-	  (t (list 0 0 0)))))
+;; (defun estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
+;;   "Use SLLN to estimate the probabilities of inferring each species tree
+;; topology via R*/STAR/MCD consensus method. The output, which is written to the
+;; standard output, is given as 14 comma-separated float numbers: the fraction of
+;; samples which estimate the topology as ((ab)c), ((ac)b), and ((bc)a)
+;; respectively, in that order, followed by the 11 original inputs to this
+;; function."
+;;   (let* ((vote-list (loop for i from 1 to number-of-samples
+;; 			       collecting (sample-one-locus τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)))
+;; 	 (probability-of-ab (/ (loop for v in vote-list summing (first v)) number-of-samples))
+;; 	 (probability-of-ac (/ (loop for v in vote-list summing (second v)) number-of-samples))
+;; 	 (probability-of-bc (/ (loop for v in vote-list summing (third v)) number-of-samples)))
+;;     (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
+;; 	    (float probability-of-ab)
+;; 	    (float probability-of-ac)
+;; 	    (float probability-of-bc)
+;; 	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)))
 
 (defun estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
-  "Use SLLN to estimate the probabilities of inferring each species tree
-topology via R*/STAR/MCD consensus method. The output, which is written to the
-standard output, is given as 14 comma-separated float numbers: the fraction of
-samples which estimate the topology as ((ab)c), ((ac)b), and ((bc)a)
-respectively, in that order, followed by the 11 original inputs to this
-function."
-  (let* ((vote-list (loop for i from 1 to number-of-samples
-			       collecting (sample-one-locus τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)))
-	 (probability-of-ab (/ (loop for v in vote-list summing (first v)) number-of-samples))
-	 (probability-of-ac (/ (loop for v in vote-list summing (second v)) number-of-samples))
-	 (probability-of-bc (/ (loop for v in vote-list summing (third v)) number-of-samples)))
+    "For each sample, construct an ancestral recombination graph on three species
+  and use it to compute the weighted JC distances d-ab, d-ac, d-bc. Then count
+  the number of samples for which each of the topologies (AB)C, (AC)B, and (BC)A
+  are inferred. Dividing by the total number of samples gives an estimate for
+  the probability of inferring each species tree (with R*/STAR/MDC consensus
+  method). The output takes the form of a 14 comma-separated float numbers: the
+  fraction of samples which estimate the topology as ((AB)C), ((AC)B),
+  and ((BC)A) respectively, in that order, followed by the 11 original inputs to
+  this function. The output is written to standard output (for shell
+  integration)."
+  (let* ((counts
+	   (loop for i from 1 to number-of-samples
+		 for output-edges =  (simulate-three-species
+				      τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)
+		 for d-ab = (compute-weighted-jc-distance 1 2 output-edges θ number-of-base-pairs)
+		 for d-ac = (compute-weighted-jc-distance 1 3 output-edges θ number-of-base-pairs)
+		 for d-bc = (compute-weighted-jc-distance 2 3 output-edges θ number-of-base-pairs)
+		 counting (and (< d-ab d-ac) (< d-ab d-bc)) into ab-count
+		 counting (and (< d-ac d-ab) (< d-ac d-bc)) into ac-count
+		 counting (and (< d-bc d-ab) (< d-bc d-ac)) into bc-count
+		 finally (return (list ab-count ac-count bc-count)))))
     (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
-	    (float probability-of-ab)
-	    (float probability-of-ac)
-	    (float probability-of-bc)
+	    (float (/ (first counts) number-of-samples))
+	    (float (/ (second counts) number-of-samples))
+	    (float (/ (third counts) number-of-samples))
 	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)))
+    
+
 
 
 ;;______________________________________________________________________________
@@ -293,6 +326,32 @@ the given time."
      (cons time (mapcar #'first paired-list))
      (cons time (mapcar #'second paired-list)))))
 
+;; Possible improvemnt
+;; (defun split-genes1 (breakpoint child-edge &optional (left-parent nil) (right-parent nil))
+;;   (if (null child-edge)
+;;       (list left-parent right-parent)
+;;       (let ((item (first child-edge)))
+;; 	    (if (> breakpoint item)
+;; 	    (split-genes breakpoint (rest child-edge) (cons item left-parent) right-parent)
+;; 	    (split-genes breakpoint (rest child-edge) left-parent (cons item right-parent))))))
+
+;; (defun split-genes2 (breakpoint child-edge)
+;;   (loop for item in child-edge
+;; 	if (<= item breakpoint) collect item into left-part
+;; 	  else collect item into right-part
+;; 	finally (return (list left-part right-part))))
+
+(defun make-coalescent-parent (time coalescing-pair)
+  "Creates parent edge of two coalescing edges. The input coalescing-edges is of
+  the form (x y) where x and y are the edges"
+  (let ((edge1 (first coalescing-pair))
+	(edge2 (second coalescing-pair)))
+    (list time
+	  (union (second edge1) (second edge2))
+	  (union (third edge1) (third edge2))
+	  (union (fourth edge1) (fourth edge2)))))
+
+
 (defun implement-coalescence (time edge-sets)
   "Updates the edge-sets (p,q) appropriately for when a recombination occurs at
   the given time."
@@ -305,20 +364,32 @@ the given time."
 ;	      time (first coalescing-pair) (second coalescing-pair) coalescent-parent)
       (list new-p new-q))))
 
-(defun make-coalescent-parent (time coalescing-pair)
-  "Creates parent edge of two coalescing edges. The input coalescing-edges is of
-  the form (x y) where x and y are the edges"
-  (let ((edge1 (first coalescing-pair))
-	(edge2 (second coalescing-pair)))
-    (list time
-	  (union (second edge1) (second edge2))
-	  (union (third edge1) (third edge2))
-	  (union (fourth edge1) (fourth edge2)))))
 
 ;;______________________________________________________________________________
 ;;
-;; --- IMPLEMENTING MUTATIONS ---
+;; --- Maximum Likelihood method (from Yang 2000) ---
 ;;______________________________________________________________________________
+
+;; This section implements a maximum-likelihood consensus tree method for
+;; inferring the species tree (as opposed to estimating the species tree using
+;; weighted JC distances like in the previous section). Similarly to previous
+;; section, for every sampled locus, we generate an ancestral recombination
+;; graph and compute pairwise distances between species for each site using
+;; marginal gene trees. What is different is that now instead of computing
+;; weighted JC distances, for each locus we implement a mutational process to
+;; generate binary 'gene' sequences for every species. Then, following Table 4
+;; in Yang 2000, we infer the ML tree topology based on the site pattern
+;; frequencies (i.e. the frequency of observing a muational pattern xxx, xxy,
+;; yxx, or xyx across species A, B and C). Then, having done this process for
+;; all of our sampled loci, we choose the most commonly-occurring ML tree
+;; topology as our 'inferred species tree topology'.
+;;
+;; As usual, our species tree has three species. To run a simulation for a given
+;; parameter regime, input use function #'ml-estimate-topology-probabilities.
+;; Working examples:
+;; (ml-estimate-topology-probabilities 1 1.01 10000 10 0 0 0 0 .2 10000 100)
+;; or
+;; (time (ml-estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .1 100000 100))
 
 (defun list-all-pairwise-marginal-distances (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)
   "Simulate a tree and return a list of triplets, each corresponding to a base pair on the locus. Each triplet is of the form (t_ab,t_ab,t_bc) where t_xy is the time of mrca of species x and y in marginal gene tree corresponding to the base pair."
@@ -330,64 +401,44 @@ the given time."
 	  collecting (list (nth position  t_ab-list) (nth position  t_ac-list) (nth position  t_bc-list)))))
 
 
-(defun draw-random-nucleotide (&optional (π '(.25 .25 .25 .25)))
-  "Output a nucleotide A,T,C or G according to the given distribution (density)
-  vector π (which should sum to one). By default, if no probability distribution
-  is given, output a uniformly chosen nucleotide."
-  (let ((x (random 1d0))
-	(cdf (convert-to-cdf π)))
-    (cond ((< x (first cdf)) 'A)
-	  ((and (>= x (first cdf)) (< x (second cdf))) 'T)
-	  ((and (>= x (second cdf)) (< x (third cdf))) 'C)
-	  (t 'G))))
+(defun draw-random-nucleotide ()
+    "Choose 0 or 1 uniformly"
+    (randomly-choose '(0 1)))
+
+;; Non-binary version of draw-random nucleotide. Commented 2021-03-11
+;;
+;; (defun draw-random-nucleotide (&optional (π '(.25 .25 .25 .25)))
+;;   "Output a nucleotide A,T,C or G according to the given distribution (density)
+;;   vector π (which should sum to one). By default, if no probability distribution
+;;   is given, output a uniformly chosen nucleotide."
+;;   (let ((x (random 1d0))
+;; 	(cdf (convert-to-cdf π)))
+;;     (cond ((< x (first cdf)) 'A)
+;; 	  ((and (>= x (first cdf)) (< x (second cdf))) 'T)
+;; 	  ((and (>= x (second cdf)) (< x (third cdf))) 'C)
+;; 	  (t 'G))))
+;;
+;; An earlier non-binary version of mutate was also supplied, but was incorrect
+;; and has been deleted.
 
 (defun mutate (base)
-  "Input: base pair. Output: new base pair. As written, the input doesn't matter
-  and the program always outputs a random base pair, but this may be changed in
-  the future, i.e. to account for a different model of DNA evolution such as
-  HKY85"
-  (cond ((eq base 'A) (randomly-choose '(A T C G)))
-	((eq base 'T) (randomly-choose '(A T C G)))
-	((eq base 'C) (randomly-choose '(A T C G)))
-	((eq base 'G) (randomly-choose '(A T C G)))
-	(t nil)))
+  "Switches 0 to 1 and 1 to zero."
+  (declare (fixnum base))
+  (logxor base 1))
 
 (defun implement-substitutions-along-edge (edge-length base θ)
-  "Input: an edge length, mutation paramter, and starting base pair.
+  "Input: an edge length, mutation parameter, and starting base pair.
   Output: a base pair, possibly different from the starting base, having been
   subject to mutations"
-  (let ((waiting-time (draw-exponential θ)))
+  (let ((waiting-time
+	  (draw-exponential θ)))
     (if (> waiting-time edge-length)
 	base
-	(implement-substitutions-along-edge (- edge-length waiting-time)
-					    (mutate base)
-					    θ))))
+	(implement-substitutions-along-edge
+	 (- edge-length waiting-time)
+	 (mutate base)
+	 θ))))
 
-(defun generate-sequences-for-sampled-locus (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
-  "Generate an ARG, then for each base pair and each pair of species A,B,C,
-   compute the marginal times until MRCA and use those to generate nucleotide
-   sequences for each species. Output is a list of triplets of the form (A A T)
-   or (A C T) where the nth element of the list gives the nth base pair sampled
-   from species A, B and C respectively."
-  (let* ((pairwise-marginal-distances (list-all-pairwise-marginal-distances τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
-    (loop for position from 0 to (- number-of-base-pairs 1)
-	  collecting (generate-nucleotide-for-species-triplet (first (nth position pairwise-marginal-distances))
-							      (second (nth position pairwise-marginal-distances))
-							      (third (nth position pairwise-marginal-distances))
-							      θ))))
-
-
-;; (defparameter testlist '((T T T) (T T T) (G G G) (C C C) (T T T) (T T T) (T T T) (T T T) (A A G)
-;;   (G G G) (C C G) (T T T) (T C C) (C A A) (T T T) (G G G) (A G C) (T T C)
-;;   (C C G) (C C C) (C C A) (G A A) (T G T) (G G G) (T T T) (G G G) (A A C)
-;;   (G G G) (C C C) (T T T) (G G G) (A G C) (A A T) (T T T) (T T T) (T T T)
-;;   (C C C) (T T T) (C C G) (T T T) (T T T) (G G G) (C A C) (C C C) (T T T)
-;;   (G T G) (A G G) (T C T) (A A A) (G A A) (G G G) (G T G) (C G A) (G G G)
-;;   (G G G) (A G G) (T T T) (A C C) (G T T) (G G T) (G T A) (C C A) (A C C)
-;;   (C C C) (G C C) (G A A) (G C C) (G C C) (C T C) (A C C) (G C C) (T T T)
-;;   (C C G) (G G C) (T T T) (T T G) (T C C) (C C C) (T T T)))
-
-	   
 (defun generate-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
   "Input: mutation parameter and time of MRCA (on a marginal gene tree) for each
   pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A
@@ -396,7 +447,8 @@ the given time."
 	 (max-tmrca (max t_ab t_ac t_bc))
 	 (internal-edge-length (- max-tmrca min-tmrca))
 	 (grand-mrca (draw-random-nucleotide))
-	 (internal-mrca (implement-substitutions-along-edge internal-edge-length grand-mrca θ)))
+	 (internal-mrca (implement-substitutions-along-edge
+			 internal-edge-length grand-mrca θ)))
     (cond ((= min-tmrca t_ab)
 	   (list (implement-substitutions-along-edge min-tmrca internal-mrca θ)
 		 (implement-substitutions-along-edge min-tmrca internal-mrca θ)
@@ -410,6 +462,90 @@ the given time."
 		  (implement-substitutions-along-edge min-tmrca internal-mrca θ)
 		  (implement-substitutions-along-edge min-tmrca internal-mrca θ))))))
 
+(defun generate-nucleotide-triplets-for-sampled-locus
+    (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
+  "Generate an ARG, then for each base pair and each pair of species A,B,C,
+   compute the marginal times until MRCA and use those to generate nucleotide
+   sequences for each species. Output is a list of triplets of the form (A A T)
+   or (A C T) where the nth element of the list gives the nth base pair sampled
+   from species A, B and C respectively."
+  (let* ((pairwise-marginal-distances
+	   (list-all-pairwise-marginal-distances
+	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
+    (loop for position from 0 to (- number-of-base-pairs 1)
+	  collecting (generate-nucleotide-for-species-triplet
+		      (first (nth position pairwise-marginal-distances))
+		      (second (nth position pairwise-marginal-distances))
+		      (third (nth position pairwise-marginal-distances))
+		      θ))))
 
+(defun compute-site-pattern-frequencies (list-of-triplets)
+  "Input: a list of nucleotide triplets. Output: a list (n₁ n₂ n₃ n₄) of site
+pattern frequencies, where the entries of the list correspond to patterns xxx, xxy,
+yxx, and xyx respectively. Example usage: (compute-site-pattern-frequencies '((G
+G G) (A A T) (G C C))) or (compute-site-pattern-frequencies '((1
+1 1) (1 1 0) (0 1 1) (0 0 0)))"
+  (loop for triplet in list-of-triplets 
+ 	counting (and (equal (first triplet) (second triplet))
+		      (equal (second triplet) (third triplet))) into xxx
+	counting (and (equal (first triplet) (second triplet))
+		      (not (equal (second triplet) (third triplet)))) into xxy
+	counting (and (equal (second triplet) (third triplet))
+		      (not (equal (first triplet) (second triplet)))) into yxx
+	counting (and (equal (first triplet) (third triplet))
+		      (not (equal (first triplet) (second triplet)))) into xyx
+ 	finally (return (mapcar #'(lambda (x) (/ x (+ xxx xxy yxx xyx)))
+				(list xxx xxy yxx xyx)))))
 
+(defun T₀-condition (f₁ f₂ f₃)
+  "Tests the condition for inferring the 3-polytomy T₀ provided in Table 4 Yang
+2000. Evaluates to t if T₀ is the ML tree and nil otherwise."
+  (declare (rational f₁ f₂ f₃))
+  (or (and (> f₁ f₂) (> f₁ f₃)
+	   (>= (+ f₂ f₃) .5))
+      (and (> f₂ f₁) (> f₂ f₃)
+	   (>= (+ f₁ f₃) .5))
+      (and (> f₃ f₁) (> f₃ f₂)
+	   (>= (+ f₂ f₁) .5))
+      (and (= f₁ f₂) (= f₂ f₃))))
 
+(defun ml-estimate-topology-probabilities
+    (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples
+    number-of-base-pairs)
+    "For each sampled locus, construct an ancestral recombination graph on three
+species, then compute pairwise distances for each marginal gene tree, then use
+binary Jukes-Cantor process to model evolution of nucleotides on each gene tree,
+thus generating a nucleotide triplet (one nucleotide for each speices) for every
+site on the locus. Then count the number of site patterns and use the counts to
+infer a topology for the locus."
+  (let* ((inference-probabilities
+	   (loop for i from 1 to number-of-samples
+		 for list-of-triplets = (generate-nucleotide-triplets-for-sampled-locus
+					 τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
+		 for site-pattern-frequencies = (compute-site-pattern-frequencies
+						 list-of-triplets)
+		 for f₁ = (second site-pattern-frequencies) ; 'second' is not a typo.
+					                    ; The f-notation is consistent
+		                                            ; with Table 4 in Yang 2000.
+		 for f₂ = (third site-pattern-frequencies)
+		 for f₃ = (fourth site-pattern-frequencies)
+		 if (T₀-condition f₁ f₂ f₃)
+		   count 1 into T₀-count ; T₀ is a 3-polytomy
+		 else
+		   count (and (> f₁ f₂) (> f₁ f₃)) into T₁-count ; T₁ is (AB)C
+		   and count (and (> f₂ f₃) (> f₂ f₁)) into T₂-count ; T₂ is A(BC)
+		   and count (and (> f₃ f₁) (> f₃ f₂)) into T₃-count ; T₃ is (AC)B
+		   and count (and (= f₁ f₂) (> f₂ f₃)) into T₁₂-count
+		   and count (and (= f₂ f₃) (> f₃ f₁)) into T₂₃-count
+		   and count (and (= f₃ f₁) (> f₁ f₂)) into T₁₃-count
+		 finally (return
+			   (mapcar #'(lambda (x) (float (/ x number-of-samples)))
+				   (list (+ T₁-count (/ T₁₂-count 2) (/ T₁₃-count 2) (/ T₀-count 3))
+					 (+ T₂-count (/ T₁₂-count 2) (/ T₂₃-count 2) (/ T₀-count 3))
+					 (+ T₃-count (/ T₁₃-count 2) (/ T₂₃-count 2) (/ T₀-count 3)))))))
+	 (P-ab (first inference-probabilities))
+	 (P-bc (second inference-probabilities))
+	 (P-ac (third inference-probabilities)))
+    (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
+	    P-ab P-ac P-bc τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab
+	    ρ_abc θ number-of-samples number-of-base-pairs)))

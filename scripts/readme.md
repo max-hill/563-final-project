@@ -1,7 +1,15 @@
 # Script Readme
-(Last updated: 2020-02-15)
+(Last updated: 2021-04-06)
 
-I'm not sure what my final pipeline will look like yet. As of now, the file [arg-builder.lisp](arg-builder.lisp) contains all lisp funtions for simulating the Ancestral Recombination Graph on a 3-taxa species tree. I am running slime in emacs, with SBCL.
+I'm not sure what my final pipeline will look like yet. As of now, the file [simulator.lisp](simulator.lisp) contains all lisp funtions for simulating the Ancestral Recombination Graph on a 3-taxa species tree. I am running slime in emacs, with SBCL.
+
+Short descriptions of each script is given. Further documentation can be found as commentary in the script files themselves (i.e. open them with a text editor).
+
+# Scripts
+
+* [consensus-jc.sh](consensus-jc.sh) estimates the species tree topology probabilities for a range of prameter regimes using the file 'execute-consensus-jc.lisp'. To run, navigate to the `scripts/` directory and execute the command ``` bash consensus-jc.sh```
+
+
 
 # To do: 
 * Finish implementing mutations. To do this you should think clearly about what you want your pipeline to look like. What outputs should be saved as files?

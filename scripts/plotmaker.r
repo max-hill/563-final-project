@@ -101,7 +101,8 @@ sprintf("%s_%s",a,b)
 ## Exit R
 q()
 
-
+## To run R from shell
+Rscript -e '1+1'
 
 
 ## First steps: Connecting the pipeline (2021-03-09)
@@ -157,3 +158,131 @@ plot(1:32,x5$P.ab)
 ## and this, which seems to suggest we better increase our samples
 
 boxplot(x1$P.ab, x2$P.ab, x3$P.ab, x4$P.ab, x5$P.ab)
+
+
+
+
+## 2021-03-10
+## in terminal, navigate to data/data-correctly-named/
+
+cat consensus-jc-N20000-L32-F0.01-TH-0.1.csv | column -s, -t | 
+
+## just look at cases where the true topology is less likely than P-ac
+    cat consensus-jc-N20000-L32-F0.01-TH-0.1.csv | column -s, -t | awk '$1 < $2' | wc -l
+
+## just look at cases where the true topology is less likely than P-bc
+cat consensus-jc-N20000-L32-F0.01-TH-0.1.csv | column -s, -t | awk '$1 < $3' | wc -l
+
+## For f=0.01, we have P-ab < min(P-ac, P-bc) in 114 out of 626 regimes
+cat consensus-jc-N20000-L32-F0.01-TH-0.1.csv | awk -F',' '$1 < $3 && $1 < $2' | wc -l
+
+## For f=0.1, apparent inconsistency occurs in 0 out of 626 regimes.
+
+## Let's make a csv file with the candidates for inconsistency regimes
+cat consensus-jc-N20000-L32-F0.01-TH-0.1.csv | awk -F',' '$1 < $3 && $1 < $2' > jc-inconsistency-candidates.csv
+## To analyze this file, we can compute the averages of the recombination rates
+
+for column in {7..11}
+do
+    awk -v column=$column -F',' '{sum+=$column} END{print sum/114}' jc-inconsistency-candidates.csv
+done
+
+4.65789
+4.72807
+0.675439
+3.14035
+0
+
+# which gives the values of ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc. Note that ρ_abc=0 for all loci, so that last number doesn't tell us anything. Also, ρ_a >0 for all these 115 cases.
+
+
+## Back in R, we can do things like: 
+ic=read.csv("jc-inconsistency-candidates.csv")
+summary(ic$P.ab)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.3028  0.3148  0.3194  0.3191  0.3239  0.3309
+
+## Look at the differences
+> summary(ic$P.ac - ic$P.ab)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.000400 0.008013 0.018650 0.021664 0.033063 0.062500 
+> summary(ic$P.bc - ic$P.ab)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.00090 0.00765 0.01773 0.02105 0.03204 0.05980
+
+## Here are two interesting plots!  
+plot(ic$ρ_a,
+     ic$P.bc - ic$P.ab,
+     xlab="recombination-rate_A",ylab="P.bc-P.ab", pch=1)
+dev.print(file="../../analysis/plot-1-2021-03-12.ps") 
+dev.off()
+
+plot(ic$ρ_a - ic$ρ_c, ic$P.bc - ic$P.ab,xlab="recombination-rate_A - recombination-rate_C",ylab="P.bc-P.ab", pch=1)
+dev.print(file="../../analysis/plot-2-2021-03-12.ps") 
+dev.off()
+
+## evidence this effect holds for ML as wll, but the effect is weaker:
+(time (ml-estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .1 1000000 32))
+Evaluation took:
+  123.135 seconds of real time
+  123.379030 seconds of total run time (123.098681 user, 0.280349 system)
+  357,588,545,367 processor cycles
+  45,989,591,168 bytes consed
+  
+"0.33116034,0.32483435,0.34400535,1,1.01,999999,10,0,0,0,0,0.1,1000000,32"
+
+## similar plots (need to fix labels)
+plot(ic$ρ_b - ic$ρ_c, ic$P.bc - ic$P.ac,xlab="recombination-rate_A - recombination-rate_C",ylab="P.bc-P.ab", pch=1)
+dev.print(file="../../analysis/plot-2-2021-03-12.ps") 
+dev.off()
+
+plot(x2$ρ_a,
+     x2$P.bc - x2$P.ab,
+     xlab="recombination-rate_A",ylab="P.bc-P.ab", pch=1)
+dev.print(file="../../analysis/plot-0-2021-03-12.ps") 
+
+## Check out these parameter values
+(time (ml-estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .02 1000 2000))
+
+Evaluation took:
+  141.393 seconds of real time
+  141.397203 seconds of total run time (141.393376 user, 0.003827 system)
+  [ Run times consist of 0.066 seconds GC time, and 141.332 seconds non-GC time. ]
+  410,612,929,727 processor cycles
+  1,701,198,288 bytes consed
+  
+"0.312,0.2965,0.3915,1,1.01,999999,10,0,0,0,0,0.02,1000,2000"
+
+## and again
+(time (estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .02 1000 2000))
+Evaluation took:
+  120.048 seconds of real time
+  120.051731 seconds of total run time (120.015893 user, 0.035838 system)
+  [ Run times consist of 0.068 seconds GC time, and 119.984 seconds non-GC time. ]
+  348,623,048,955 processor cycles
+  1,690,918,352 bytes consed
+  
+"0.313,0.296,0.391,1,1.01,999999,10,0,0,0,0,0.02,1000,2000"
+
+
+## again
+(time (estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .002 1000 2000))
+Evaluation took:
+  119.280 seconds of real time
+  119.274739 seconds of total run time (119.174731 user, 0.100008 system)
+  [ Run times consist of 0.070 seconds GC time, and 119.205 seconds non-GC time. ]
+  346,392,421,085 processor cycles
+  1,687,874,176 bytes consed
+  
+"0.319,0.305,0.376,1,1.01,999999,10,0,0,0,0,0.002,1000,2000"
+
+# and again
+(time (estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .02 1000 2000))
+Evaluation took:
+  122.801 seconds of real time
+  122.817544 seconds of total run time (122.813585 user, 0.003959 system)
+  [ Run times consist of 0.070 seconds GC time, and 122.748 seconds non-GC time. ]
+  356,621,412,702 processor cycles
+  1,684,325,616 bytes consed
+  
+"0.309,0.297,0.394,1,1.01,999999,10,0,0,0,0,0.02,1000,2000"

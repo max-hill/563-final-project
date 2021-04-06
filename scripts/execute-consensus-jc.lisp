@@ -44,20 +44,22 @@
 ;; defined in simulator.lisp. Additional information about the process can be
 ;; found as commentary in that file.
 
+;; Note: Choose τ_max large enough to ensure all coalescent events occur long before
+;; this time occurs (we could just choose this to be most-positive-long-float).
 
-(defparameter *τ_ab* 1) ; age of most recent divergence time (in coalescent units)
-(defparameter *f* .1) ; internal branch length: τ_abc-τ_ab. It's convenient to write this explicitly
+(defparameter *τ_ab* 1) ; age of most recent species divergence
+(defparameter *f* .01) ; internal branch length: τ_abc-τ_ab.
 (defparameter *τ_abc* (+ *τ_ab* *f*)) ; age of oldest divergence time
-(defparameter *τ_max* 999999) ; maximum height of species tree -- choose this large enough to ensure all coalescent events occur long before this time occurs (we could just choose this to be most-positive-long-float).
+(defparameter *τ_max* 999999) ; maximum height of species tree
 (defparameter *θ* .1) ; mutation parameter
 (defparameter *possible-ρ-values* '(0 1 2 4 8))
 (defparameter *N* 1000); sample size (number of sampled loci)
 (defparameter *L* 16) ; locus length (in base pairs)
-(defparameter *counter* 0) ; counter for tracking how long we have to wait for the simulation to finish
+(defparameter *counter* 0) ; counter 
 
 (defun try-various-recombination-rates (N L &optional (θ *θ*))
   "Run simulations for N loci each of length L with every possible combination of species recombination rates taken from the list *possible-ρ-values*. User must input N and L, where N is the sample size and L is the locus length."
-  (let ((output-csv-file (format nil "../data/consensus-jc-N~a-L~a-F~a.csv" N L *f*)))
+  (let ((output-csv-file (format nil "../data/consensus-jc-N~a-L~a-F~a-TH~a.csv" N L *f* *θ*)))
     (with-open-file (output output-csv-file
 			    :direction :output
                             :if-does-not-exist :create
