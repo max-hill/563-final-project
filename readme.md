@@ -18,3 +18,4 @@ For further information on the scripts used, see the [scripts readme](scripts/re
 * Write something reproducible for makeing a plot from simulated data. 
 * Expand plotmaking functionality and smooth out filename wrinkles.
 * Improve documentation. Remove outdated comments in script files. 
+* Generalize allowable assignments of recombination rates in simulation-parameters.lisp
