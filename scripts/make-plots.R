@@ -35,9 +35,9 @@ for (file in file_list){
     output_name=paste(file_name_sans_ext, ".jpeg", sep="")
     df=read.csv(file,header=TRUE)
 
-    plot1 = ggplot(df, aes(x=ρ_a, y= P.bc - P.ab)) +
+    plot1 = ggplot(df, aes(x=ρ_a - ρ_b, y= P.bc - P.ab)) +
         geom_point() + 
-        labs(x="recombination rate in population A",y="Pr[A(BC)]-Pr[(AB)C]")
+        labs(x="(recombination rate in population A) - (recomb rate in population B)",y="Pr[A(BC)]-Pr[(AB)C]")
     ggsave(output_name, plot1, path="../analysis/")
     print(paste("graph made for: ",file_name,sep=""))
     print(paste("output file path: ../analysis/",output_name,sep=""))

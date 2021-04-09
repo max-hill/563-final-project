@@ -54,8 +54,8 @@
 ;; possible combinations of these values.
 
 (defparameter *θ* .02) ; mutation rate
-(defparameter *N* 10) ; sample size (number of sampled loci)
-(defparameter *L* 500) ; locus length (in base pairs)
+(defparameter *N* 50) ; sample size (number of sampled loci)
+(defparameter *L* 100) ; locus length (in base pairs)
 
 ;;______________________________________________________________________________
 ;;
