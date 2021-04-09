@@ -7,8 +7,7 @@ In this project I simulate genetic data subject to intralocus recombination unde
 
 For the draft overview of my project and reproducible script, see [notebook-log.md](notebook-log.md).
 
-For further information on the scripts used, see the [scripts readme](scripts/readme.md) in the `scripts` directory.
-
+For further information on the scripts used, see the [scripts readme](scripts/readme.md).
 ## To do
 * Finish implementing mutations. To do this you should think clearly about what
   you want your pipeline to look like. What outputs should be saved as files?
