@@ -13,7 +13,7 @@
 # (see INSTRUCTIONS and INPUT sections below).
 #
 # INSTRUCTIONS: To run this script, navigate to the scripts/ directory and run
-# the command 'bash simulate.sh X', where X=1,2, or 3. The input X determines
+# the command 'bash simulate.sh X', where X=0,1, or 2. The input X determines
 # which type of simulation is performed and is described in the INPUT section
 # below.
 #
@@ -68,10 +68,10 @@ if [[ $inference_method == 0 ]]
 then
     echo "Running a simulation of the following type:"
     echo "Binary Sequences + Yang-ML inference"
-    sbcl  --dynamic-space-size 10000 --noinform --eval '
+    sbcl  --noinform --eval '
     (progn (load "simulator.lisp")
            (load "simulation-parameters.lisp")
-           (load "execute-consensus-ml.lisp")
+           (load "execute-ml-sequence.lisp")
            (quit))' 2>/dev/null 
     exit
 fi
