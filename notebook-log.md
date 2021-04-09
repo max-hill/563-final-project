@@ -192,11 +192,8 @@ by printing out a number each time it completes a parameter regime.
 
 Upon completion, a single .csv file is created, located in the `data/`
 directory. The name of this output file will depend on the choice of parameter
-regime. In particular, it will have the name `consensus-jc-N-L-F.csv`, where N
-is the sample size (i.e. the number of simulation runs and hence the number of
-rows in csv file), L is the length of the each sampled loci (in base pairs), and
-F is the internal branch length of the species tree. The csv will have 14
-columns, indicated as follows:
+regime and inference type chosen. The csv will have 14 columns, indicated as in
+the following table:
 
 ```
 | Column Number | Symbol | Description or definition                       |
