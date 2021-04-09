@@ -1,33 +1,55 @@
 # Project Notebook
 (Last updated: 2021-04-08)
 
-## Rubric
-* Does the phylogenetic analysis have a clear goal and a clear guideline of steps to follow?
-* Are the methods chosen justified for the data at hand?
-* Are the specific assumptions and limitations of each method acknowledged?
-* Does the analysis have a reproducible script?
-* Is the reproducible script easy to follow and understand?
+## Background and Research Question
 
-## Instructions
-The draft due on April 9 should be a skelethon version of ideas, not a complete written product. The goal of the peer evaluation is to provide feedback on the analysis steps, not on grammar/wording. The peer evaluation should also address how reproducible the current state of the scripts are.
+Broadly speaking, phylogenetic inference using summary tree methods involves a
+two-step process. First, observed gene sequences are used to construct a
+collection of 'gene trees', each representing the evolution of a single gene (or
+'locus'). Second, a species tree is inferred from the gene trees by looking at
+some informative property of the gene trees, such as the most commonly-observed
+rooted species tripets or unrooted species quartets. Provided that the gene
+trees are estimated without error, such methods are generally statistically
+consistent, meaning that the inferred species tree converges to the true species
+tree as the number of sampled genes increases (Warnow 2018, Chapter 10.5).
 
-Questions the peer reviewer should consider:
+In my project, I investigate the robustness of such methods when certain
+assumptions they make about gene trees are violated. Each gene tree is thought
+to represent the ancestry of a collection of orthologous genes observed in the
+sequence data. For example, a protein-coding gene which existed in the genome of
+the MRCA of humans, chimps, and gorillas may have evolved in such a way that the
+human, chimp, and gorilla genomes that exist today exhibit three slightly
+different (but related) versions of this gene. If the human and chimp versions
+are the most similar, then the corresponding gene tree would have topology
+((HC)G) and branch lengths determined by the degree of genetic difference
+between the three gene versions. In real biological terms, this gene tree
+represents the idea that the two versions of the gene observed in humans and
+chimps descend from an ancestor gene that existed more recently than any common
+ancestor of either gene copy with that found in gorillas.
 
-* Does the phylogenetic analysis have a clear goal and a clear guideline of steps to follow?
-* Are the methods chosen justified for the data at hand?
-* Are the specific assumptions and limitations of each method acknowledged?
-* Does the analysis have a reproducible script?
-* Is the reproducible script easy to follow and understand?
+One assumption here is that gene ancestries can be accurately represented by
+_trees_, as opposed to more general graphs. In order to be valid, this
+assumption requires that any individual carrying a given gene inherited the
+_entire gene_ from one parents or the other. However this may not be
+biologically reasonable. For example recombination may cause a child to inherit
+part of their gene from one parent and part from the other. To what extent does
+such intralocus recombination present a challenge to phylogenetic inference? In
+particular, does it present a significant impediment to correct topological
+inference when using summary gene tree coalescent methods?
 
-## Project Overview and Research Question
-
-Broadly speaking, phylogenetic inference using summary tree methods involves a two-step process. First, observed gene sequences are used to construct a collection of 'gene trees', each representing the evolution of a single gene (or 'locus'). Second, a species tree is inferred from the gene trees by looking at some informative property of the gene trees, such as the most commonly-observed rooted species tripets or unrooted species quartets. Provided that the gene trees are estimated without error, such methods are generally statistically consistent, meaning that the inferred species tree converges to the true species tree as the number of sampled genes increases (Warnow 2018, Chapter 10.5). 
-
-In my project, I investigate the robustness of such methods when certain assumptions they make about gene trees are violated. Each gene tree is thought to represent the ancestry of a collection of orthologous genes observed in the sequence data. For example, a protein-coding gene which existed in the genome of the MRCA of humans, chimps, and gorillas may have evolved in such a way that the human, chimp, and gorilla genomes that exist today exhibit three slightly different (but related) versions of this gene. If the human and chimp versions are the most similar, then the corresponding gene tree would have topology ((HC)G) and branch lengths determined by the degree of genetic difference between the three gene versions. In real biological terms, this gene tree represents the idea that the two versions of the gene observed in humans and chimps descend from an ancestor gene that existed more recently than any common ancestor with gorillas.
-
-One assumption here is that gene ancestries can be accurately represented by _trees_, as opposed to more general graphs. In order to be valid, this assumption requires that any individual carrying a given gene inherited the _entire gene_ from one parents or the other. However this may not be biologically reasonable. For example recombination may cause a child to inherit part of their gene from one parent and part from the other. To what extent does such intralocus recombination present a challenge to phylogenetic inference? In particular, does it present a significant impediment to correct topological inference when using summary gene tree coalescent methods? 
-
-I hope to make a contribution to the ongoing debate regarding these questions. On one hand, it is well-established that summary methods based on the most commonly occuring species triplets or species quartets are consistent for estimating the unrooted species tree from gene trees generated under the multispecies coalescent, a model does not allow for intralocus recombination (see Warnow 2018, Chapter 10.5). By contrast, I have previously shown (not in this project) that when when intralocus recombination is allowed, there exist parameter regimes in which those summary methods (e.g. based on the most commonly-occuring rooted triplets, unrooted quartets, and maximum-likelihood trees) fail to infer the correct species tree. In this project I seek to use simulation to characterize the zone of parameters in which these methods fail in order to better understand the effect of intralocus recombination on species tree inference. 
+I hope to make a contribution to the ongoing debate regarding these questions.
+On one hand, it is well-established that summary methods based on the most
+commonly occuring species triplets or species quartets are consistent for
+estimating the unrooted species tree from gene trees generated under the
+multispecies coalescent, a model does not allow for intralocus recombination
+(see Warnow 2018, Chapter 10.5). By contrast, I have previously shown (not in
+this project) that when when intralocus recombination is allowed, there exist
+parameter regimes in which those summary methods (e.g. based on the most
+commonly-occuring rooted triplets, unrooted quartets, and maximum-likelihood
+trees) fail to infer the correct species tree. In this project I seek to use
+simulation to characterize the zone of parameters in which these methods fail in
+order to better understand the effect of intralocus recombination on species
+tree inference.
 
 ## Methods and Data
 In this project we use simulated genetic data, generated under conditions of
@@ -89,29 +111,52 @@ they did not consider in their analysis may be significant.
 
 
 
+## Reproducing the pipeline
+To replicate or extend my results, clone this repository and follow the
+step-by-step instructions below.
 
-# Reproducing the pipeline
-To replicate or extend my results, clone this repository and follow the step-by-step instructions below.
+### Step 1. Setup
 
-## Step 1. Setup
-You will likely need to install SBCL, the Common Lisp implementation used by my simulator. If you are running Ubuntu/Debian, simply run the command
+
+#### Install SBCL
+We need to install SBCL, the Common Lisp implementation used by our
+simulator. If you are running Ubuntu/Debian, simply run the command
 
 ```
 sudo apt-get install sbcl
 ```
 
-If you are running a different operating system, instructions can be found at [https://lisp-lang.org/learn/getting-started/](https://lisp-lang.org/learn/getting-started/)
+If you are running OS X, run the command 
 
-## Step 2. Choose a parameter regime (optional)
+```
+brew install sbcl
+```
 
-[Skip this step if you wish to use the default values.]
-
-Edit the file [simulation-parameters.lisp](scripts/simulation-parameters.lisp)
-to assign custom parameter values. (Instructions and examples are provided as
-commentary in the file itself).
+If you are running a different operating system, instructions can be found at
+[https://lisp-lang.org/learn/getting-started/](https://lisp-lang.org/learn/getting-started/).
+(Note that you do not need to install Quicklisp, Emacs, or SLIME.)
 
 
-## Step 2. Simulate the Data
+#### Install R and ggplot2
+We will use R and the R package ggplot2 to make plots. To install R on Debian (and probably Ubuntu), run the command
+
+```
+sudo apt-get install r-base
+```
+
+More detailed instructions for installing R can be found at [https://cloud.r-project.org/](https://cloud.r-project.org/).
+
+To install the R package ggplot2, run the command
+
+```
+sudo apt-get install r-basesudo su - -c "R -e \"install.packages('ggplot2', repos='http://cran.rstudio.com/')\""
+```
+
+I have no idea how to do this on other operatings systems.
+
+
+
+### Step 2. Simulate the Data
 
 To run a simulation using the default simulation parameters (i.e. those
 specified in the file
@@ -121,8 +166,10 @@ the scripts/ directory and run the command
 ```
 bash simulate.sh X
 ```
-where X=0,1, or 2. The input X determines which type of inference method is
-performed, according to the following table:
+
+where X=0,1, or 2. [NOTE: as of 2021-04-09 only X=0 works]. The input X
+determines which type of inference method is performed, according to the
+following table:
 
 ```
  X  Inference method
@@ -131,21 +178,25 @@ performed, according to the following table:
 (2) R* with expected distances
 ```
 
-Note that by default the simulator will consider all possible cominbations of
+Optionally, if you wish to supply your own parameter values, you will need to edit
+the file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) to
+assign custom parameter values. Instructions and examples are provided as
+commentary in the file itself.
+
+By default the simulator will consider all possible combinations of
 recombination rate assignments specified in
 [simulation-parameters.lisp](scripts/simulation-parameters.lisp), which means
-that it will loop over many parameter regimes (243 for the default parameters).
-Depending on the values you choose, this process may take some time. The
-simulator will track its progress by printing out a number each time it
-completes a parameter regime.
+that it will loop over many parameter regimes. Depending on the values you
+choose, this process may take some time. The simulator will track its progress
+by printing out a number each time it completes a parameter regime.
 
 Upon completion, a single .csv file is created, located in the `data/`
 directory. The name of this output file will depend on the choice of parameter
-regime. It will have the name `consensus-jc-N-L-F.csv`, where N is the sample
-size (i.e. the number of simulation runs and hence the number of rows in csv
-file), L is the length of the each sampled loci (in base pairs), and F is the
-internal branch length of the species tree. The csv will have 14 columns,
-indicated as follows:
+regime. In particular, it will have the name `consensus-jc-N-L-F.csv`, where N
+is the sample size (i.e. the number of simulation runs and hence the number of
+rows in csv file), L is the length of the each sampled loci (in base pairs), and
+F is the internal branch length of the species tree. The csv will have 14
+columns, indicated as follows:
 
 ```
 | Column Number | Symbol | Description or definition                       |
@@ -166,4 +217,31 @@ indicated as follows:
 |            14 | L      | length of each locus in base pairs              |
 ```
 
-## Step 3. Make pictures
+### Step 3. Generate Plots
+
+After running at least one simulation, we can make plots using the R script
+[make-plots.R](scripts/make-plots.R), which will iterate over all .csv files in
+`data/` and make a plot for each one. To run it, navigate to the `scripts/`
+directory and run the command
+
+```
+Rscript make-plots.R
+```
+
+This will output a plot, located in the `analysis/` directory.
+
+[Note: as of 2021-04-09, running step 3 won't create a particularly intersting
+plot for the default parameter values, but right now provides just the basic
+scaffolding for automated plot creation using ggplot2, which I am still learning
+how to use.]
+
+
+## Sources
+
+* Robert C Griffiths and Paul  Marjoram, "An Ancestral Recombination Graph" in Progress in population genetics and human evolution, Springer, 1997. Online at [http://lamastex.org/recomb/ima.pdf](http://lamastex.org/recomb/ima.pdf)
+
+* Hayyley C. Lanier, L. Lacey Knowles, "Is Recombination a Problem for Species-Tree Analyses?",  Systematic Biology, Volume 61, Issue 4, July 2012, Pages 691–701, https://doi.org/10.1093/sysbio/syr128
+
+* Tandy Warnow, _Computational Phylogenetics_, Cambridge University Press, 2018. 
+
+* Ziheng Yang, Complexity of the simplest phylogenetic estimation problem, Proc Biol Sci. 2000 Jan 22; 267(1439): 109–116. Online at [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/)
