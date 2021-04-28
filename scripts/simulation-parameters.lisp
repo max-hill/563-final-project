@@ -1,9 +1,17 @@
-
+;; simulation-parameters.lisp --- Customizable document which specifies the
+;; range of paramter regimes under which simulations are run by simulate.sh.
+;;
+;; Author: max hill
+;; (Last updated 2021-04-28)
+;;
 ;; DESCRIPTION: This file sets the global parameters for the ancestral
 ;; recombination graph simulation executed by the script simulate.sh.
+;; In particular, when run using simulate.sh, the simulation will simulate N
+;; ancestral recombination graphs (each corresponding to a locus consisting of L
+;; base pairs) for each possible configuration of the other parameters.
 ;;
-;; Recall that the species tree always has three leaves: A, B, and C and
-;; topology ((AB)C). The other model parameters are summarized in the following
+;; Recall that the species tree always has three taxa (ie leaves): A, B, and C
+;; and topology ((AB)C). The model parameters are summarized in the following
 ;; table:
 ;;
 ;; | Symbol | Description or definition                       |
@@ -22,10 +30,18 @@
 ;; | L      | length of each locus in base pairs              |
 ;;
 ;;
-;; HOW TO SET YOUR OWN PARAMETERS: Modify any of the numeric values in the
-;; script below. For example, to change the mutation rate to .01, replace the
-;; code '(defparameter *θ* .02)' with '(defparameter *θ* .01)'.
-
+;; HOW TO SET YOUR OWN PARAMETERS: To customize N, change the number in the line
+;; containing (defparameter *N* 100) to a different number. Similarly, to
+;; customize L, change the number in the line with (defparameter *L* 500) to a
+;; different number.
+;;
+;; To specify the other parameters, simply modify their corresponding lists of
+;; numeric values below. For example, to instruct the simulation to use mutation
+;; rates .01, .02, and .05, we would replace the code
+;; (defparameter *θ-values* '(.02))
+;; by the code (defparameter *θ-values* '(.01 .02 .05))
+;;
+;; Note that the list entries must be separated by spaces, not commas. 
 
 ;;______________________________________________________________________________
 ;;
@@ -36,16 +52,6 @@
 
 (defparameter *f-values* '(.01)) ; f is the internal branch length on the
 				 ; species tree: f=τ_abc-τ_ab.
-
-(defparameter *τ_max* 999999) ; maximum height of species tree.
-;; Note: technically τ_max is the maximum allowable duration of the final
-;; population ABC. It's not really a model parameter, but instead an artifact of
-;; how I wrote the simulation (since the root population ABC will simulate an
-;; ARG until one of the following occur: (1) there exists one lineage or (2)
-;; time has exceeded τ_max). Just choose a really big number (we could also
-;; replace 999999 with most-positive-long-float but I have to test). As long as
-;; it is large enought to ensure all coalesecent events occur long before this
-;; time occurs, there is no problem.
 
 ;; The following parameters define population-specific recombination rates.
 ;; There are 5 populations, corresponding to edges on the species tree (A, B, C,
@@ -65,6 +71,15 @@
 (defparameter *L* 500) ; locus length (in base pairs)
 
 
+(defparameter *τ_max* 999999) ; maximum height of species tree.
+;; Note: technically τ_max is the maximum allowable duration of the final
+;; population ABC. It's not really a model parameter, but instead an artifact of
+;; how I wrote the simulation (since the root population ABC will simulate an
+;; ARG until one of the following occur: (1) there exists one lineage or (2)
+;; time has exceeded τ_max). Just choose a really big number (we could also
+;; replace 999999 with most-positive-long-float but I have to test). As long as
+;; it is large enought to ensure all coalesecent events occur long before this
+;; time occurs, there is no problem.
 
 ;; Output some helpful messages to the user
 (format t "~%Parameter regime is as follows (this is saved in output file): 

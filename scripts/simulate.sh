@@ -5,50 +5,100 @@
 #_______________________________________________________________________________
 
 # Author: Max Hill
-# (Last updated 2021-04-06)
+# (Last updated 2021-04-28)
 #
-# DESCRIPTION: This file contains the script for starting up a simulation under
-# a pre-specified parameter regime. It is intended to be run from the command
-# line by the user (i.e. you). There are three simulation types to choose from
-# (see INSTRUCTIONS and INPUT sections below).
+# INSTRUCTIONS: This file is intended to be run from the command line. To run
+# this script, navigate to the scripts/ directory and run the command 'bash
+# simulate.sh X', where X=0,1, or 2. The input X determines which type of
+# simulation is performed and is described in the DESCRIPTION section below.
 #
-# INSTRUCTIONS: To run this script, navigate to the scripts/ directory and run
-# the command 'bash simulate.sh X', where X=0,1, or 2. The input X determines
-# which type of simulation is performed and is described in the INPUT section
-# below.
+# DESCRIPTION: This file contains the script for running a simulation under each
+# of the parameter regimes specified in the file simulation-parameters.lisp.
+# There are three simulation/inference modes to choose from (see below). The
+# results for each parameter regime consists of information about how well the
+# inference procedure performed (eg how often the correct species tree topology
+# was inferred under that regime). The results for each regime are recorded as a
+# row in an automatically-named output csv file in the data directory.
 #
-# INPUT: The value of X determines what type of simulation is performed, what
-# data is generated, and how the species tree is inferred. The precise
-# specficiation for X = 0, 1 and 2 is as follows:
+# The simulation seeks to model the evolution of a locus of DNA consisting of
+# *L* base pairs on a species tree with topology ((AB)C) when the possibility of
+# intralocus recombination is present. Since we seek to evaluate the performance
+# of consensus-based methods like R*, we are especially interested in simulating the
+# evolution of this locus many times under the same parameter regime and
+# recording how frequently the true tree topology ((AB)C) is inferred. 
 #
-#   (0) Binary Sequences + Yang-ML inference:
+# As noted there are three types of simulation to choose from. A full
+# description of the simulation procedure under each of the three cases is as
+# follows:
 #
-#       Simulate an ancestral recombation graph with parameter regime specified
-#       in 'execute-consensus-ml.lisp'. Generate binary sequences for each
-#       extant species. Infer a species tree using maximum-likelihood. The
-#       maximum-likelihood tree is obtained analytically using site-frequency
-#       data and the method described in Table 4 of Yang 2000.
+#   (0) ml-sequence (maximum-likelihood with binary sequences):
 #
-#   (1) Expected JC69 distance + R* inference:
+#       Given a fixed parameter regime, do the following three steps *N* times:
+#       first, simulate an ancestral recombation graph (ARG) with the given
+#       parameter regime. Second, use the ARG to generate binary DNA sequences
+#       for each taxa by modeling mutations under the symmetric model of site
+#       evolution. Third, infer a species tree using maximum-likelihood. In
+#       particular, the maximum-likelihood tree is obtained from site-frequency
+#       data using results from Yang 2000 (ie Table 4 in that paper).
 #
-#       Simulate an ancestral recombination graph with parameter regime
-#       specified in 'execute-consensus-sh.lisp'. Compute expected genetic
-#       distances between extant species using the Jukes-Cantor 1969 model of
-#       site evolution. Infer a species tree with R* consensus method using
-#       those expected distances.
+#   (1) jc-expected (expected Hamming distances under the JC69 model of site
+#                    evolution):
 #
-#   (2) JC69 sequences + R* inference:
+#       Given a fixed parameter regime, do the following three steps *N* times:
+#       first, simulate an ARG with the given parameter regime, but for reasons
+#       of computational efficiency, we keep track only of the coalescent times
+#       of the ARG's marginal gene trees. Second, using these coalescent times,
+#       compute what would be the expected Hamming distance between sequences of
+#       each species under the Jukes-Cantor 1969 model of site evolution. Third,
+#       infer a topology using the rule that the two taxa with the smallest
+#       expected difference are most closely related.
 #
-#       Simulate an ancestral recombination graph with parameter regime
-#       specified in 'execute-consensus-jc-seq.lisp' Generate a sequence (with
-#       letters A,T,C,G) for each extant species. Infer species tree with R*
-#       consensus method using pairwise Hamming distances between the sequences.
-
+#   (2) jc-sequences (Hamming distances under the JC69 model of site evolution)
+#
+#       For each parameter do the following four steps *N* times: first,
+#       simulate an ARG with the given parameter regime. Second, for each taxa
+#       generate a nucleotide sequence with possible bases A,T,C, and G by
+#       simulating the Jukes-Cantor process on each marginal gene tree of the
+#       ARG. Third, compute the Hamming distance between the sequences for each
+#       taxa. Fourth, infer a tree topology using the rule that the two taxa
+#       with the smallest Hamming distance are most closely related.
+#
+#   Having completed (0), (1), or (2), the program then records in the csv the
+#   proportion of the *N* samples which resulted in correct topological
+#   inference vs inferred incorrect topologies. That is, for each of the three
+#   possible topologies ((AB)C), ((AC)B) and ((BC)A), it records the fraction of
+#   samples for which that topology was inferred. Such information is recorded
+#   in a single row in the csv, along with the information about the parameter
+#   regime that was used. The simulator then moves on to the next parameter
+#   regime and repeat the process to generate the next row of the csv.
+#
+# OUTPUT: A single .csv file located in the data/ directory named
+# 'inference-method-N-L.csv', where 'inference method' is replaced by an element
+# of the set {ml-sequence, jc-expected, jc-sequence}, and N, L are specified in
+# the table below. If a file of that name already exists, then the results will
+# be appended to the existing file. The csv will have 14 columns, indicated in
+# the following table:
+#
+# | Column Number | Symbol | Description or definition                       |
+# |---------------+--------+-------------------------------------------------|
+# |             1 | P-ab   | estimated probability of inferring ((AB)C)      |
+# |             2 | P-ac   | estimated probability of inferring ((AC)B)      |
+# |             3 | P-bc   | estimated probability of inferring ((BC)A)      |
+# |             4 | τ_ab   | divergence time of species A and B              |
+# |             5 | τ_abc  | divergence time of species AB and C             |
+# |             6 | τ_max  | maximum height of the tree (pick large)         |
+# |             7 | ρ_a    | recombination rate in population A              |
+# |             8 | ρ_b    | recombination rate in population B              |
+# |             9 | ρ_c    | recombination rate in population C              |
+# |            10 | ρ_ab   | recombination rate in population AB             |
+# |            11 | ρ_abc  | recombination rate in population ABC            |
+# |            12 | θ      | mutation rate per site per coalescent unit      |
+# |            13 | N      | number of sampled loci (ie # of ARGS simulated) |
+# |            14 | L      | length of each locus in base pairs              |
 
 ### ---Begin script---
 
 ################################################################################
-
 
 # Name the input variable. 
 inference_method="$1"
@@ -76,40 +126,11 @@ sbcl --noinform --eval '
 # lisp, such behavior is surpressed by piping standard error into the black hole
 # of /dev/null. Surely this won't have any unintended consequences.
 
-
-
-
-
-# # (1) Expected JC69 distance + R* inference:
-
-# if [[ $inference_method == 1 ]]
-# then
-#     echo "Running a simulation of the following type:"
-#     echo "Expected JC69 distance + R* inference"
-#     sbcl  --dynamic-space-size 10000 --noinform --eval '
-#     (progn (load "simulator.lisp")
-#            (load "simulation-parameters.lisp")
-#            (load "execute-jc-expected.lisp" :print nil)
-#            (quit))' 2>/dev/null
-#     exit
-# fi
-
-# # (2) JC69 sequences + R* inference:
-# if [[ $inference_method == 2 ]]
-# then
-#     echo "Running a simulation of the following type:"
-#     echo "JC69 sequences + R* inference"
-#     sbcl   --noinform --eval '
-#     (progn (load "simulator.lisp")
-#            (load "simulation-parameters.lisp")
-#            (load "execute-jc-sequence.lisp" :print nil)
-#            (quit))' 2>/dev/null
-#     exit
-# fi
+# NOTE ABOUT MEMORY ALLOCATION: By default, SBCL allocates about 1GB of RAM to
+# be used. If *N* or *L* is very large, this may not be enough. To allocated a
+# specified X megabytes of RAM, one can add the option '--dynamic-space-size X'
+# when calling sbcl.
 
 ################################################################################
 
 ### ---Script ends here---
-
-
-## note add '--dynamic-space-size 10000' to sbcl to allocate specific amount of megabytes of ram to the thing. 

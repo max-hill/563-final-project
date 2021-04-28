@@ -1,59 +1,13 @@
-;; initiate-simulation.lisp --- runs the approprate inference methods over
-;; various parameter regims and records the results in a csv file.
+;; initiate-simulation.lisp --- runs the user-selected inference method over all
+;; parameter regimes specified in simulation-parameters.lisp and records the
+;; results in a csv file. This file is executed automatically by the script
+;; simulate.sh.
 ;;
 ;; Author: max hill
-;; (Last updated 2021-04-27)
-;;
-;; DESCRIPTION: Simulate the evolution a length of DNA (the 'sampled locus')
-;; across three sister species A, B, and C whose species tree has topology
-;; ((AB)C). For each sampled locus (i.e., each simulation run), attempt to infer
-;; the original topology using one of three possible methods (see documentation,
-;; but there correspond roughly to: maximum-liklihood with binary sequences,
-;; expected weighted Jukes-Cantor distances, and uncorrected Hamming distances).
-;; Record all information in a csv file to be analyzed later.
-;;
-;; OUTPUT: A single .csv file named 'inference-method-N-L-F-θ.csv', where
-;; 'inference method' is replaced by an element of the set {ml-sequence,
-;; jc-expected, jc-sequence}, N, L, and θ are specified in the table below, and
-;; F:=τ_abc-τ_ab is the internal branch length of the species tree. The csv will
-;; have 14 columns, indicated as follows:
-;; 
-;; | Column Number | Symbol | Description or definition                       |
-;; |---------------+--------+-------------------------------------------------|
-;; |             1 | P-ab   | estimated probability of inferring ((AB)C)      |
-;; |             2 | P-ac   | estimated probability of inferring ((AC)B)      |
-;; |             3 | P-bc   | estimated probability of inferring ((BC)A)      |
-;; |             4 | τ_ab   | divergence time of species A and B              |
-;; |             5 | τ_abc  | divergence time of species AB and C             |
-;; |             6 | τ_max  | maximum height of the tree (pick large)         |
-;; |             7 | ρ_a    | recombination rate in population A              |
-;; |             8 | ρ_b    | recombination rate in population B              |
-;; |             9 | ρ_c    | recombination rate in population C              |
-;; |            10 | ρ_ab   | recombination rate in population AB             |
-;; |            11 | ρ_abc  | recombination rate in population ABC            |
-;; |            12 | θ      | mutation rate per site per coalescent unit      |
-;; |            13 | N      | number of sampled loci (ie # of ARGS simulated) |
-;; |            14 | L      | length of each locus in base pairs              |
-;;
-;;
-;; More specific descriptions of the procedures (incomplete -- also maybe move these somewhere else)
-;; PROCEDURE: For each loci, generate an ARG, compute marginal gene trees, and
-;; then compute generate nucleotide sequence (A,T,C,G) using the Jukes-Cantor
-;; process on the marginal gene trees. Then use the R* consensus method to infer
-;; a topology (i.e. look at the uncorrected distances of the three sequences).
-;; PROCEDURE: For each loci, generate an ARG, compute marginal gene trees,
-;; and then compute JC distances based on the heights of marginal gene trees.
-;; Based on the computed JC distances, use the R* consensus method to infer a
-;; topology. OUTPUT: for each of the three possible topologies ((AB)C), ((AC)B)
-;; and ((BC)A), output the fraction of loci that inferred that topology.
+;; (Last updated 2021-04-28)
 
 
-;; ADDITIONAL COMMENTARY: The multispecies coalescent with recombination is used
-;; to generate each locus. The functions used to implement this process are
-;; defined in simulator.lisp. Additional information about the process can be
-;; found as commentary in that file.
-
-;; Set the counter
+;; Set the progress-tracking counter
 (defparameter *counter* 0)
 
 ;; Import user-specified inference method (= "0" "1" or "2")
@@ -68,14 +22,15 @@
 	((equal "2" *inference_method*)
 	 (format nil "../data/jc-sequence-N~a-L~a.csv" *N* *L*))))
 
-;; Identify which function in simulator.lisp to use (depends onthe inference method)
+;; Identify which function in simulator.lisp to use (depends on the inference
+;; method)
 (defparameter *main-inference-function*
   (cond ((equal "0" *inference_method*) 'ml-sequence-estimate-topology-probabilities)
 	((equal "1" *inference_method*) 'jc-expected-estimate-topology-probabilities)
 	((equal "2" *inference_method*) 'jc-sequence-estimate-topology-probabilities)))
 
-;; Give a warning message for when the output filename already exists, otherwise
-;; create the output file and add a header
+;; Create the output file and add a header. Give a warning message for when the
+;; output filename already exists.
 (if (probe-file *output-filename*)
     (format t "~%~%Warning: file with the intented output name already exists. ~a ~a ~%"
 	    "Results from this simulation will be appended to the existing file: "
@@ -86,9 +41,8 @@
 			    :if-exists :append)
       (format output "P-ab,P-ac,P-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%")))
 
-
-
-(format t "~%~%This will take some time.")
+;; Progress indicator message
+(format t "~%~%This will take some time. Progress counter tracks total number of parameter regimes completed (ie number of rows added to output file) so far.")
   
 ;; Run the simulation, looping over all parameter regimes specified in the file
 ;; simulation-parameters.lisp.
@@ -105,19 +59,22 @@
 	      (loop for ρ₅ in *ρ_abc-values* do
 		(loop for θ in *θ-values* do
 		  (print (setf *counter* (1+ *counter*))) ; update and print progress counter
-		  (sb-ext:gc :full t) ; do full garbage collection. Prevents running out of memory.
+		  (sb-ext:gc :full t) ; do full garbage collection
 		  (format output "~a~%"
 			  (funcall *main-inference-function*
 				   τ_ab (+ f τ_ab) *τ_max* ρ₁ ρ₂ ρ₃ ρ₄ ρ₅ θ *N* *L*)))))))))))
+;; COMMENTARY: The above code does the following. For each parameter regime, we
+;; simulate *N* loci each of length *L*. Since *N* is large, this allows us to
+;; determine the likelihood of inferring the correct species tree topology
+;; compared to the incorrect topologies using the given method. The results for
+;; each parameter regime are written as a row in the output csv file. Note that
+;; (+ f τ_ab) = τ_abc.
 
-;;Completion message
+;; NOTE ABOUT GARBAGE COLLECTION: The garbage collection step clears RAM in
+;; between computing rows of the csv. This was necessary to prevent memory
+;; overload in an earlier version of the simulator, and while it probably isn't
+;; necessary any more, I am opting to leave it in since it contributes very
+;; little to run time.
+
+;; Completion message
 (format t "~%~%Output written to file ~a~%" *output-filename*)
-
-;; COMMENTARY: The above code does the following. First, we introduce a
-;; conditional to resolve certain naming issues (by printing an error if a file
-;; with the given output filename already exists). Then for each parameter
-;; regime, we simulate *N* loci each of length *L*. Since *N* is large, this
-;; allows us to determine the likelihood of inferring the correct species tree
-;; topology compared to the incorrect topologies using the given method. The
-;; results for each parameter regime are written as a row in the output csv
-;; file. Note that (+ f τ_ab) = τ_abc
