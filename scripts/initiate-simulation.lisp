@@ -74,34 +74,44 @@
 	((equal "1" *inference_method*) 'jc-expected-estimate-topology-probabilities)
 	((equal "2" *inference_method*) 'jc-sequence-estimate-topology-probabilities)))
 
+;; Give a warning message for when the output filename already exists, otherwise
+;; create the output file and add a header
+(if (probe-file *output-filename*)
+    (format t "~%~%Warning: file with the intented output name already exists. ~a ~a ~%"
+	    "Results from this simulation will be appended to the existing file: "
+	    *output-filename*)
+    (with-open-file (output *output-filename*
+			    :direction :output
+			    :if-does-not-exist :create
+			    :if-exists :append)
+      (format output "P-ab,P-ac,P-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%")))
+
+
+
+(format t "~%~%This will take some time.")
+  
 ;; Run the simulation, looping over all parameter regimes specified in the file
 ;; simulation-parameters.lisp.
-(if (probe-file *output-filename*)
-    (format t "~%~%Error: file with the intented output name already exists. ~a ~a ~a~%"
-	    "You have already simulated with these parameters. You must choose new"
-	    "parameters or rename/delete the file" *output-filename*)
-    (progn
-      (format t "~%~%This will take some time.")
-      (with-open-file (output *output-filename*
-			      :direction :output
-			      :if-does-not-exist :create
-			      :if-exists :append)
-	(progn
-	  (format output "P-ab,P-ac,P-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%")
-	  (loop for τ_ab in *τ_ab-values* do
-	       (loop for f in *f-values* do
-		    (loop for ρ₁ in *ρ_a-values* do
-			 (loop for ρ₂ in *ρ_b-values* do
-			      (loop for ρ₃ in *ρ_c-values* do
-				   (loop for ρ₄ in *ρ_ab-values* do
-					(loop for ρ₅ in *ρ_abc-values* do
-					     (loop for θ in *θ-values* do
-						  (print (setf *counter* (1+ *counter*))) ; counter for tracking how much longer to wait
-						  (sb-ext:gc :full t) ; initiate full garbage collection. Prevents running out of memory.
-						  (format output "~a~%"
-							  (funcall *main-inference-function*
-								   τ_ab (+ f τ_ab) *τ_max* ρ₁ ρ₂ ρ₃ ρ₄ ρ₅ θ *N* *L*))))))))))))
-	  (format t "~%~%Output written to file ~a~%" *output-filename*)))
+(with-open-file (output *output-filename*
+			:direction :output
+			:if-does-not-exist :create
+			:if-exists :append)
+  (loop for τ_ab in *τ_ab-values* do
+    (loop for f in *f-values* do
+      (loop for ρ₁ in *ρ_a-values* do
+	(loop for ρ₂ in *ρ_b-values* do
+	  (loop for ρ₃ in *ρ_c-values* do
+	    (loop for ρ₄ in *ρ_ab-values* do
+	      (loop for ρ₅ in *ρ_abc-values* do
+		(loop for θ in *θ-values* do
+		  (print (setf *counter* (1+ *counter*))) ; update and print progress counter
+		  (sb-ext:gc :full t) ; do full garbage collection. Prevents running out of memory.
+		  (format output "~a~%"
+			  (funcall *main-inference-function*
+				   τ_ab (+ f τ_ab) *τ_max* ρ₁ ρ₂ ρ₃ ρ₄ ρ₅ θ *N* *L*)))))))))))
+
+;;Completion message
+(format t "~%~%Output written to file ~a~%" *output-filename*)
 
 ;; COMMENTARY: The above code does the following. First, we introduce a
 ;; conditional to resolve certain naming issues (by printing an error if a file
