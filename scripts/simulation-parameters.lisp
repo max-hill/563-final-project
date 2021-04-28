@@ -48,14 +48,29 @@
 ;; time occurs, there is no problem.
 
 (defparameter *possible-ρ-values* '(0 4 8)) ; allowable population-specific
-					    ; recombination rates
+					    ; recombination rates in the
+					    ; non-root populations
 ;; Note: runtime increases exponentially as the length of this list increases
-;; because the simulator has all 5 populations (A, B, C, AB, and ABC) try all
-;; possible combinations of these values.
+;; because the simulator has all 4 non-root populations (A, B, C, AB) try all
+;; possible combinations of these values. The recombination rate in the root
+;; population is specified separately to improve computation times (see next
+;; line).
+
+(defparameter *possible-root-ρ-values* '(0)) ; recombination rate in
+;; the root population. Note that choosing a non-zero values for this tends to
+;; significantly increase computing time.
 
 (defparameter *θ* .02) ; mutation rate
 (defparameter *N* 50) ; sample size (number of sampled loci)
 (defparameter *L* 100) ; locus length (in base pairs)
+
+
+
+;; Output some helpful messages to the user
+(format t "~%Parameter regime is as follows (this is saved in output file): ~%τ_ab=~a ~%τ_abc=~a ~%τ_max=~a ~%θ=~a ~%N=~a ~%L=~a ~%ρ_a ρ_b ρ_c ρ_ab chosen independently from the set ~a" *τ_ab* *τ_abc* *τ_max* *θ* *N* *L* *possible-ρ-values*)
+(format t "~%ρ_abc chosen from the set ~a" *possible-root-ρ-values*)
+(format t "~%(Simulation parameters can be modified by modifying the file scripts/simulation-parameters.lisp)")
+
 
 ;;______________________________________________________________________________
 ;;

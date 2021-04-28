@@ -34,7 +34,7 @@
 #       Simulate an ancestral recombination graph with parameter regime
 #       specified in 'execute-consensus-sh.lisp'. Compute expected genetic
 #       distances between extant species using the Jukes-Cantor 1969 model of
-#       site evolution. Infer a species tree with R* consensus method based on
+#       site evolution. Infer a species tree with R* consensus method using
 #       those expected distances.
 #
 #   (2) JC69 sequences + R* inference:
@@ -42,7 +42,7 @@
 #       Simulate an ancestral recombination graph with parameter regime
 #       specified in 'execute-consensus-jc-seq.lisp' Generate a sequence (with
 #       letters A,T,C,G) for each extant species. Infer species tree with R*
-#       consensus method based on actual sequence distances.
+#       consensus method using pairwise Hamming distances between the sequences.
 
 
 ### ---Begin script---
@@ -57,24 +57,19 @@ inference_method="$1"
 if [[ $inference_method != [012] ]]
 then
     echo "error: argument must be an element of {0,1,2}"
+    echo "0 == Yang's maximum likelihood procedure on binary sequences ('ml-sequence')"
+    echo "1 == R* inference using *expected* uncorrected sequence distances under JC69 substitution model ('jc-expected')"
+    echo "2 == R* inference using uncorrected sequence distances under JC69 substitution model ('jc-sequence')"
     exit
 fi
 
-
-
-
-# (0) Binary Sequences + Yang-ML inference:
-if [[ $inference_method == 0 ]]
-then
-    echo "Running a simulation of the following type:"
-    echo "Binary Sequences + Yang-ML inference"
-    sbcl  --noinform --eval '
-    (progn (load "simulator.lisp")
-           (load "simulation-parameters.lisp")
-           (load "execute-ml-sequence.lisp")
-           (quit))' 2>/dev/null 
-    exit
-fi
+echo "Running a simulation of the following type:"
+echo "Binary Sequences + Yang-ML inference"
+sbcl --noinform --eval '
+(progn (load "simulator.lisp")
+       (load "simulation-parameters.lisp")
+       (load "initiate-simulation.lisp")
+       (quit))' $inference_method 2>/dev/null
 # Note that SBCL ('steel bank common lisp') is an implmentation of common lisp,
 # the language our simulator is written in. When loading files, SBCL outputs
 # style warnings by default. Since this might confuse users not familiar with
@@ -85,30 +80,36 @@ fi
 
 
 
-# (1) Expected JC69 distance + R* inference:
+# # (1) Expected JC69 distance + R* inference:
 
-if [[ $inference_method == 1 ]]
-then
-    echo "Running a simulation of the following type:"
-    echo "Expected JC69 distance + R* inference"
-    sbcl  --dynamic-space-size 10000 --noinform --eval '
-    (progn (compile-file "simulator.lisp" :print nil)
-	   (compile-file "execute-consensus-jc.lisp" :print nil)
-	   (load "simulator.fasl")
-	   (time (load "execute-consensus-jc.fasl"))
-	   (quit))'
-    exit
-fi
+# if [[ $inference_method == 1 ]]
+# then
+#     echo "Running a simulation of the following type:"
+#     echo "Expected JC69 distance + R* inference"
+#     sbcl  --dynamic-space-size 10000 --noinform --eval '
+#     (progn (load "simulator.lisp")
+#            (load "simulation-parameters.lisp")
+#            (load "execute-jc-expected.lisp" :print nil)
+#            (quit))' 2>/dev/null
+#     exit
+# fi
 
-# (2) JC69 sequences + R* inference:
-if [[ $inference_method == 2 ]]
-then
-    echo "Running a simulation of the following type:"
-    echo "JC69 sequences + R* inference"
-    echo "just kidding! It hasn't been implemented yet" 
-    exit
-fi
+# # (2) JC69 sequences + R* inference:
+# if [[ $inference_method == 2 ]]
+# then
+#     echo "Running a simulation of the following type:"
+#     echo "JC69 sequences + R* inference"
+#     sbcl   --noinform --eval '
+#     (progn (load "simulator.lisp")
+#            (load "simulation-parameters.lisp")
+#            (load "execute-jc-sequence.lisp" :print nil)
+#            (quit))' 2>/dev/null
+#     exit
+# fi
 
 ################################################################################
 
 ### ---Script ends here---
+
+
+## note add '--dynamic-space-size 10000' to sbcl to allocate specific amount of megabytes of ram to the thing. 

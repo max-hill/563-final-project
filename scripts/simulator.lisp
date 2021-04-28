@@ -148,53 +148,7 @@ given mutation parameter θ"
 	     summing (compute-integrand t_mrca θ))))))
 
 
-
-;; Old version of these functions 2021-03-11
-;;
-;; (defun compute-weighted-jc-distance (species1 species2 output-edges θ number-of-base-pairs)
-;;   "Compute the weighted Jukes-Cantor distance between species1 and species2
-;; given mutation parameter θ."
-;;   (* (/ 3 (* 4 number-of-base-pairs))
-;;      (reduce #'+ (mapcar #'(lambda (x)
-;; 			     (- 1 (exp (* -1 (/ (* 8 θ x) 3)))))
-;; 			 (compute-marginal-tmrcas species1 species2 output-edges number-of-base-pairs)))))
-;;
-;;
-;; (defun sample-one-locus (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)
-;;   "Input a parameter regime. Construct an ancestral recombination graph on three
-;; species and then output a binary vector indicating which JC distance is the
-;; smallest. (1_AB, 1_AC, 1_BC)."
-;;   (let* ((output-edges (simulate-three-species τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs))
-;; 	 (d-ab (compute-weighted-jc-distance 1 2 output-edges θ number-of-base-pairs))
-;; 	 (d-ac (compute-weighted-jc-distance 1 3 output-edges θ number-of-base-pairs))
-;; 	 (d-bc (compute-weighted-jc-distance 2 3 output-edges θ number-of-base-pairs)))
-;;     (cond ((and (< d-ab d-ac) (< d-ab d-bc))
-;; 	   (list 1 0 0))
-;; 	  ((and (< d-ac d-ab) (< d-ac d-bc))
-;; 	   (list 0 1 0))
-;; 	  ((and (< d-bc d-ab) (< d-bc d-ac))
-;; 	   (list 0 0 1))
-;; 	  (t (list 0 0 0)))))
-
-;; (defun estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
-;;   "Use SLLN to estimate the probabilities of inferring each species tree
-;; topology via R*/STAR/MCD consensus method. The output, which is written to the
-;; standard output, is given as 14 comma-separated float numbers: the fraction of
-;; samples which estimate the topology as ((ab)c), ((ac)b), and ((bc)a)
-;; respectively, in that order, followed by the 11 original inputs to this
-;; function."
-;;   (let* ((vote-list (loop for i from 1 to number-of-samples
-;; 			       collecting (sample-one-locus τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-base-pairs)))
-;; 	 (probability-of-ab (/ (loop for v in vote-list summing (first v)) number-of-samples))
-;; 	 (probability-of-ac (/ (loop for v in vote-list summing (second v)) number-of-samples))
-;; 	 (probability-of-bc (/ (loop for v in vote-list summing (third v)) number-of-samples)))
-;;     (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
-;; 	    (float probability-of-ab)
-;; 	    (float probability-of-ac)
-;; 	    (float probability-of-bc)
-;; 	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)))
-
-(defun estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
+(defun jc-expected-estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
     "For each sample, construct an ancestral recombination graph on three species
   and use it to compute the weighted JC distances d-ab, d-ac, d-bc. Then count
   the number of samples for which each of the topologies (AB)C, (AC)B, and (BC)A
@@ -326,21 +280,6 @@ the given time."
      (cons time (mapcar #'first paired-list))
      (cons time (mapcar #'second paired-list)))))
 
-;; Possible improvemnt
-;; (defun split-genes1 (breakpoint child-edge &optional (left-parent nil) (right-parent nil))
-;;   (if (null child-edge)
-;;       (list left-parent right-parent)
-;;       (let ((item (first child-edge)))
-;; 	    (if (> breakpoint item)
-;; 	    (split-genes breakpoint (rest child-edge) (cons item left-parent) right-parent)
-;; 	    (split-genes breakpoint (rest child-edge) left-parent (cons item right-parent))))))
-
-;; (defun split-genes2 (breakpoint child-edge)
-;;   (loop for item in child-edge
-;; 	if (<= item breakpoint) collect item into left-part
-;; 	  else collect item into right-part
-;; 	finally (return (list left-part right-part))))
-
 (defun make-coalescent-parent (time coalescing-pair)
   "Creates parent edge of two coalescing edges. The input coalescing-edges is of
   the form (x y) where x and y are the edges"
@@ -401,32 +340,16 @@ the given time."
 	  collecting (list (nth position  t_ab-list) (nth position  t_ac-list) (nth position  t_bc-list)))))
 
 
-(defun draw-random-nucleotide ()
+(defun draw-random-binary-nucleotide ()
     "Choose 0 or 1 uniformly"
     (randomly-choose '(0 1)))
 
-;; Non-binary version of draw-random nucleotide. Commented 2021-03-11
-;;
-;; (defun draw-random-nucleotide (&optional (π '(.25 .25 .25 .25)))
-;;   "Output a nucleotide A,T,C or G according to the given distribution (density)
-;;   vector π (which should sum to one). By default, if no probability distribution
-;;   is given, output a uniformly chosen nucleotide."
-;;   (let ((x (random 1d0))
-;; 	(cdf (convert-to-cdf π)))
-;;     (cond ((< x (first cdf)) 'A)
-;; 	  ((and (>= x (first cdf)) (< x (second cdf))) 'T)
-;; 	  ((and (>= x (second cdf)) (< x (third cdf))) 'C)
-;; 	  (t 'G))))
-;;
-;; An earlier non-binary version of mutate was also supplied, but was incorrect
-;; and has been deleted.
-
-(defun mutate (base)
+(defun binary-mutate (base)
   "Switches 0 to 1 and 1 to zero."
   (declare (fixnum base))
   (logxor base 1))
 
-(defun implement-substitutions-along-edge (edge-length base θ)
+(defun implement-binary-substitutions-along-edge (edge-length base θ)
   "Input: an edge length, mutation parameter, and starting base pair.
   Output: a base pair, possibly different from the starting base, having been
   subject to mutations"
@@ -434,35 +357,36 @@ the given time."
 	  (draw-exponential θ)))
     (if (> waiting-time edge-length)
 	base
-	(implement-substitutions-along-edge
+	(implement-binary-substitutions-along-edge
 	 (- edge-length waiting-time)
-	 (mutate base)
+	 (binary-mutate base)
 	 θ))))
 
-(defun generate-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
+(defun generate-binary-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
   "Input: mutation parameter and time of MRCA (on a marginal gene tree) for each
   pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A
   T C) or (G G C) corresponding to species A, B, and C respectively."
   (let* ((min-tmrca (min t_ab t_ac t_bc))
 	 (max-tmrca (max t_ab t_ac t_bc))
 	 (internal-edge-length (- max-tmrca min-tmrca))
-	 (grand-mrca (draw-random-nucleotide))
-	 (internal-mrca (implement-substitutions-along-edge
+	 (grand-mrca (draw-random-binary-nucleotide))
+	 (internal-mrca (implement-binary-substitutions-along-edge
 			 internal-edge-length grand-mrca θ)))
     (cond ((= min-tmrca t_ab)
-	   (list (implement-substitutions-along-edge min-tmrca internal-mrca θ)
-		 (implement-substitutions-along-edge min-tmrca internal-mrca θ)
-		 (implement-substitutions-along-edge max-tmrca grand-mrca θ)))
+	   (list (implement-binary-substitutions-along-edge min-tmrca internal-mrca θ)
+		 (implement-binary-substitutions-along-edge min-tmrca internal-mrca θ)
+		 (implement-binary-substitutions-along-edge max-tmrca grand-mrca θ)))
            ((= min-tmrca t_ac)
-	    (list (implement-substitutions-along-edge min-tmrca internal-mrca θ)
-		  (implement-substitutions-along-edge max-tmrca grand-mrca θ)
-		  (implement-substitutions-along-edge min-tmrca internal-mrca θ)))
+	    (list (implement-binary-substitutions-along-edge min-tmrca internal-mrca θ)
+		  (implement-binary-substitutions-along-edge max-tmrca grand-mrca θ)
+		  (implement-binary-substitutions-along-edge min-tmrca internal-mrca θ)))
            ((= min-tmrca t_bc)
-	    (list (implement-substitutions-along-edge max-tmrca grand-mrca θ)
-		  (implement-substitutions-along-edge min-tmrca internal-mrca θ)
-		  (implement-substitutions-along-edge min-tmrca internal-mrca θ))))))
+	    (list (implement-binary-substitutions-along-edge max-tmrca grand-mrca θ)
+		  (implement-binary-substitutions-along-edge min-tmrca internal-mrca θ)
+		  (implement-binary-substitutions-along-edge min-tmrca internal-mrca θ))))))
 
-(defun generate-nucleotide-triplets-for-sampled-locus
+
+(defun generate-binary-nucleotide-triplets-for-sampled-locus
     (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
   "Generate an ARG, then for each base pair and each pair of species A,B,C,
    compute the marginal times until MRCA and use those to generate nucleotide
@@ -473,7 +397,7 @@ the given time."
 	   (list-all-pairwise-marginal-distances
 	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
     (loop for position from 0 to (- number-of-base-pairs 1)
-	  collecting (generate-nucleotide-for-species-triplet
+	  collecting (generate-binary-nucleotide-for-species-triplet
 		      (first (nth position pairwise-marginal-distances))
 		      (second (nth position pairwise-marginal-distances))
 		      (third (nth position pairwise-marginal-distances))
@@ -488,7 +412,7 @@ G G) (A A T) (G C C))) or (compute-site-pattern-frequencies '((1
   (loop for triplet in list-of-triplets 
  	counting (and (equal (first triplet) (second triplet))
 		      (equal (second triplet) (third triplet))) into xxx
-	counting (and (equal (first triplet) (second triplet))
+        counting (and (equal (first triplet) (second triplet))
 		      (not (equal (second triplet) (third triplet)))) into xxy
 	counting (and (equal (second triplet) (third triplet))
 		      (not (equal (first triplet) (second triplet)))) into yxx
@@ -496,6 +420,8 @@ G G) (A A T) (G C C))) or (compute-site-pattern-frequencies '((1
 		      (not (equal (first triplet) (second triplet)))) into xyx
  	finally (return (mapcar #'(lambda (x) (/ x (+ xxx xxy yxx xyx)))
 				(list xxx xxy yxx xyx)))))
+
+
 
 (defun T₀-condition (f₁ f₂ f₃)
   "Tests the condition for inferring the 3-polytomy T₀ provided in Table 4 Yang
@@ -509,18 +435,18 @@ G G) (A A T) (G C C))) or (compute-site-pattern-frequencies '((1
 	   (>= (+ f₂ f₁) .5))
       (and (= f₁ f₂) (= f₂ f₃))))
 
-(defun ml-estimate-topology-probabilities
+(defun ml-sequence-estimate-topology-probabilities
     (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples
     number-of-base-pairs)
     "For each sampled locus, construct an ancestral recombination graph on three
 species, then compute pairwise distances for each marginal gene tree, then use
 binary Jukes-Cantor process to model evolution of nucleotides on each gene tree,
-thus generating a nucleotide triplet (one nucleotide for each speices) for every
+thus generating a nucleotide triplet (one nucleotide for each species) for every
 site on the locus. Then count the number of site patterns and use the counts to
 infer a topology for the locus."
   (let* ((inference-probabilities
 	   (loop for i from 1 to number-of-samples
-		 for list-of-triplets = (generate-nucleotide-triplets-for-sampled-locus
+		 for list-of-triplets = (generate-binary-nucleotide-triplets-for-sampled-locus
 					 τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
 		 for site-pattern-frequencies = (compute-site-pattern-frequencies
 						 list-of-triplets)
@@ -549,3 +475,163 @@ infer a topology for the locus."
     (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
 	    P-ab P-ac P-bc τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab
 	    ρ_abc θ number-of-samples number-of-base-pairs)))
+
+;;______________________________________________________________________________
+;;
+;;  --- FUNCTIONS FOR SIMULATING JC69-SEQUENCES + R* INFERENCE ---
+;;______________________________________________________________________________
+
+;; These functions are for generating DNA sequences consisting of letters A,T,C,
+;; and G under the ancestral recombination graph + JC 69 substitution model.
+;; Most of the functions are similar to those found in the previous section for
+;; Maximum Likelihood method (from Yang 2000), but with minor modifications. In
+;; this case, sequences are generated for each species and R* inference is based
+;; on the pairwise Hamming distances.
+
+
+(defun draw-random-ATCG-nucleotide (&optional (π '(.25 .25 .25 .25)))
+  "Output a nucleotide A,T,C or G according to the given distribution (density)
+  vector π (which should sum to one). By default, if no probability distribution
+  is given, output a uniformly chosen nucleotide."
+  (let ((x (random 1d0))
+	(cdf (convert-to-cdf π)))
+    (cond ((< x (first cdf)) "A")
+	  ((and (>= x (first cdf)) (< x (second cdf))) "T")
+	  ((and (>= x (second cdf)) (< x (third cdf))) "C")
+	  (t "G"))))
+
+(defun ATCG-mutate (base)
+  "Mutate nucleotide of the form A,T,C, or G to a different nucleotide of a
+different letter. The new nucleotide is chosen uniformly."
+  (let ((new-base (randomly-choose '("A" "T" "C" "G"))))
+    (if (equal base new-base)
+	(ATCG-mutate base)
+	new-base)))
+
+
+(defun implement-ATCG-substitutions-along-edge (edge-length base θ)
+  "Input: an edge length, mutation parameter, and starting base pair.
+  Output: a base pair, possibly different from the starting base, having been
+  subject to mutations"
+  (let ((waiting-time
+	  (draw-exponential θ)))
+    (if (> waiting-time edge-length)
+	base
+	(implement-ATCG-substitutions-along-edge
+	 (- edge-length waiting-time)
+	 (ATCG-mutate base)
+	 θ))))
+
+
+(defun generate-ATCG-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
+  "Input: mutation parameter and time of MRCA (on a marginal gene tree) for each
+  pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A
+  T C) or (G G C) corresponding to species A, B, and C respectively."
+  (let* ((min-tmrca (min t_ab t_ac t_bc))
+	 (max-tmrca (max t_ab t_ac t_bc))
+	 (internal-edge-length (- max-tmrca min-tmrca))
+	 (grand-mrca (draw-random-ATCG-nucleotide))
+	 (internal-mrca (implement-ATCG-substitutions-along-edge
+			 internal-edge-length grand-mrca θ)))
+    (cond ((= min-tmrca t_ab)
+	   (list (implement-ATCG-substitutions-along-edge min-tmrca internal-mrca θ)
+		 (implement-ATCG-substitutions-along-edge min-tmrca internal-mrca θ)
+		 (implement-ATCG-substitutions-along-edge max-tmrca grand-mrca θ)))
+           ((= min-tmrca t_ac)
+	    (list (implement-ATCG-substitutions-along-edge min-tmrca internal-mrca θ)
+		  (implement-ATCG-substitutions-along-edge max-tmrca grand-mrca θ)
+		  (implement-ATCG-substitutions-along-edge min-tmrca internal-mrca θ)))
+           ((= min-tmrca t_bc)
+	    (list (implement-ATCG-substitutions-along-edge max-tmrca grand-mrca θ)
+		  (implement-ATCG-substitutions-along-edge min-tmrca internal-mrca θ)
+		  (implement-ATCG-substitutions-along-edge min-tmrca internal-mrca θ))))))
+
+
+(defun generate-ATCG-nucleotide-triplets-for-sampled-locus
+    (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
+  "Generate an ARG, then for each base pair and each pair of species A,B,C,
+   compute the marginal times until MRCA and use those to generate nucleotide
+   sequences for each species. Output is a list of triplets of the form (A A T)
+   or (A C T) where the nth element of the list gives the nth base pair sampled
+   from species A, B and C respectively."
+  (let* ((pairwise-marginal-distances
+	   (list-all-pairwise-marginal-distances
+	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
+    (loop for position from 0 to (- number-of-base-pairs 1)
+	  collecting (generate-ATCG-nucleotide-for-species-triplet
+		      (first (nth position pairwise-marginal-distances))
+		      (second (nth position pairwise-marginal-distances))
+		      (third (nth position pairwise-marginal-distances))
+		      θ))))
+
+
+(defun make-dna-sequences (list-of-triplets)
+  "Converts the nucleotide triplets into a list of three nucleotide sequences,
+corresponding to species A, B, and C. Example code: (make-dna-sequences (generate-atcg-nucleotide-triplets-for-sampled-locus 1 1.3 19999 3 0 0 0 0 5 3))"
+  (list (format nil "~{~a~}" (loop for x in list-of-triplets collecting (first x)))
+	(format nil "~{~a~}" (loop for x in list-of-triplets collecting (second x)))
+	(format nil "~{~a~}" (loop for x in list-of-triplets collecting (third x)))))
+;; Note the input variable list-of-triplets take the form
+;; '(("A" "T" "T") ("T" "T" "T") ("G" "A" "T"))
+
+(defun hamming-distance (dna1 dna2)
+  "Determine number of mutations between DNA strands by computing the Hamming
+Distance. This function was copied verbatim from Shinmera's solution (2018)
+online at
+https://exercism.io/tracks/common-lisp/exercises/hamming/solutions/f76cb73b07254c118cc91d800e70021d"
+  (when (= (length dna1) (length dna2))
+    (loop for nucleotide1 across dna1
+          for nucleotide2 across dna2
+          when (not (eql nucleotide1 nucleotide2))
+          count it)))
+
+(defun jc-sequence-estimate-topology-probabilities
+    (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples
+     number-of-base-pairs)
+  "For each sampled locus, construct an ancestral recombination graph on three
+species, then compute pairwise distances for each marginal gene tree, then use
+Jukes-Cantor process to model evolution of nucleotides ATCG on each gene tree,
+thus generating a nucleotide triplet (one nucleotide for each species) for every
+site on the locus. Then reformat the data into DNA sequences, one for each
+species (ie dna-X is a string of nucleotides corresponding to the sequence from
+species X). Then count the number pairwise differences between the three
+sequences to infer a topology for the locus. (In the code below h-xy is the
+hamming distance between the sequences from species x and y)."
+  (let* ((inference-probabilities
+	  (loop for i from 1 to number-of-samples
+		for list-of-triplets = (generate-ATCG-nucleotide-triplets-for-sampled-locus
+					τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc
+					number-of-base-pairs θ)
+                for dna-A = (format nil "~{~a~}" (loop for x in list-of-triplets collecting (first x)))
+		for dna-B = (format nil "~{~a~}" (loop for x in list-of-triplets collecting (second x)))
+		for dna-C = (format nil "~{~a~}" (loop for x in list-of-triplets collecting (third x)))
+		for h-ab = (hamming-distance dna-A dna-B)
+		for h-ac = (hamming-distance dna-A dna-C)
+		for h-bc = (hamming-distance dna-B dna-C) 
+     	        if (= h-ab h-ac h-bc)
+		   count 1 into T₀-count ; T₀ is a 3-polytomy
+		 else
+		   count (and (> h-ac h-ab) (> h-bc h-ab)) into T₁-count ; T₁ is (AB)C
+		   and count (and (> h-ab h-bc) (> h-ac h-bc)) into T₂-count ; T₂ is A(BC)
+		   and count (and (> h-ab h-ac) (> h-bc h-ac)) into T₃-count ; T₃ is (AC)B
+		   and count (and (= h-ab h-bc) (> h-ac h-ab)) into T₁₂-count
+		   and count (and (= h-bc h-ac) (> h-ab h-bc)) into T₂₃-count
+		   and count (and (= h-ab h-ac) (> h-bc h-ab)) into T₁₃-count
+		 finally (return
+			   (mapcar #'(lambda (x) (float (/ x number-of-samples)))
+				   (list (+ T₁-count (/ T₁₂-count 2) (/ T₁₃-count 2) (/ T₀-count 3))
+					 (+ T₂-count (/ T₁₂-count 2) (/ T₂₃-count 2) (/ T₀-count 3))
+					 (+ T₃-count (/ T₁₃-count 2) (/ T₂₃-count 2) (/ T₀-count 3)))))))
+	 (P-ab (first inference-probabilities))
+	 (P-bc (second inference-probabilities))
+	 (P-ac (third inference-probabilities)))
+    (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
+	    P-ab P-ac P-bc τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab
+	    ρ_abc θ number-of-samples number-of-base-pairs)))
+;;  Edge cases in the above are handled in the following way: if all three
+;;  hamming distances are equal, we assume that one of the three possible binary
+;;  tree topologies is chosen uniformly at random. If h-xy = h-xz < h-yz, then
+;;  we assume that one of ((xy)z) or ((xz)y) is chosen uniformly at random.
+;;  However, to reduce estimate variance, we do not implement this step
+;;  directly, but instead assing weights of 1/3 to all cases or 1/2 to the two
+;;  more plausible trees respectively."
