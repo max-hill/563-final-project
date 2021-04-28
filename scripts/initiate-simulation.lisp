@@ -62,11 +62,11 @@
 ;; Set name of output-file (depends on the inference method)
 (defparameter *output-filename*
   (cond ((equal "0" *inference_method*)
-	 (format nil "../data/ml-sequence-N~a-L~a-F~a-TH~a.csv" *N* *L* *f* *θ*))
+	 (format nil "../data/ml-sequence-N~a-L~a.csv" *N* *L*))
 	((equal "1" *inference_method*)
-	 (format nil "../data/jc-expected-N~a-L~a-F~a-TH~a.csv" *N* *L* *f* *θ*))
+	 (format nil "../data/jc-expected-N~a-L~a.csv" *N* *L*))
 	((equal "2" *inference_method*)
-	 (format nil "../data/jc-sequence-N~a-L~a-F~a-TH~a.csv" *N* *L* *f* *θ*))))
+	 (format nil "../data/jc-sequence-N~a-L~a.csv" *N* *L*))))
 
 ;; Identify which function in simulator.lisp to use (depends onthe inference method)
 (defparameter *main-inference-function*
@@ -88,18 +88,20 @@
 			      :if-exists :append)
 	(progn
 	  (format output "P-ab,P-ac,P-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%")
-	  (loop for ρ₁ in *possible-ρ-values* do
-	    (loop for ρ₂ in *possible-ρ-values* do
-	      (loop for ρ₃ in *possible-ρ-values* do
-		(loop for ρ₄ in *possible-ρ-values* do
-		  (loop for ρ₅ in *possible-root-ρ-values* do
-		    (progn
-		      ;(print (setf *counter* (1+ *counter*))) ; counter for tracking how much longer to wait
-		      (sb-ext:gc :full t) ; initiate full garbage collection. Prevents running out of memory.
-		      (format output "~a~%"
-			      (funcall *main-inference-function* ; this function is defined in simulator.lisp
-				       *τ_ab* *τ_abc* *τ_max* ρ₁ ρ₂ ρ₃ ρ₄ ρ₅ *θ* *N* *L*))))))))))
-      (format t "~%~%Output written to file ~a~%" *output-filename*)))
+	  (loop for τ_ab in *τ_ab-values* do
+	       (loop for f in *f-values* do
+		    (loop for ρ₁ in *ρ_a-values* do
+			 (loop for ρ₂ in *ρ_b-values* do
+			      (loop for ρ₃ in *ρ_c-values* do
+				   (loop for ρ₄ in *ρ_ab-values* do
+					(loop for ρ₅ in *ρ_abc-values* do
+					     (loop for θ in *θ-values* do
+						  (print (setf *counter* (1+ *counter*))) ; counter for tracking how much longer to wait
+						  (sb-ext:gc :full t) ; initiate full garbage collection. Prevents running out of memory.
+						  (format output "~a~%"
+							  (funcall *main-inference-function*
+								   τ_ab (+ f τ_ab) *τ_max* ρ₁ ρ₂ ρ₃ ρ₄ ρ₅ θ *N* *L*))))))))))))
+	  (format t "~%~%Output written to file ~a~%" *output-filename*)))
 
 ;; COMMENTARY: The above code does the following. First, we introduce a
 ;; conditional to resolve certain naming issues (by printing an error if a file
@@ -108,4 +110,4 @@
 ;; allows us to determine the likelihood of inferring the correct species tree
 ;; topology compared to the incorrect topologies using the given method. The
 ;; results for each parameter regime are written as a row in the output csv
-;; file.
+;; file. Note that (+ f τ_ab) = τ_abc
