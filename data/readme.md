@@ -19,6 +19,10 @@ Datafiles are automatically named by the simulation. The name consist of three p
 * a number L, representing the number of sites per locus represented by an
   ancestral recombination graph.
 
+If you run a simulation with the same mode, N, and L as a previous simulation,
+the existing datafile will not be overwritten. Instead, the simulation output
+will be *appended* to the existing datafile. This allows large scale (i.e.
+time-consuming) simulations to be broken up into chunks (of rows). 
 
 ## Datafile Structure
 
