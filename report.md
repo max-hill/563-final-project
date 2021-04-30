@@ -234,6 +234,12 @@ For our first plots, we ran the simulation for each of the three settings with p
 (defparameter *τ_max* 999999)
 ````
 
+In all three cases we obtained similar a similar result. When the internal branch of the species tree is very small and recombination occurs only in the pendant edge of the species tree corresponding to species A, then the following conclusions hold:
+
+* under even relatively low recombination rates (i.e. less than 5) the probability of a gene tree exhibiting the topology (AB)C which matches that of the species tree is less than the probability of it exhibiting the incorrect topology (AB)C; and 
+
+* this effect grows as the recombination rate increases.
+
 <img src="analysis/plot1-mls.jpeg" width="600" height="600">
 <img src="analysis/plot1-jce.jpeg" width="600" height="600">
 <img src="analysis/plot1-jcs.jpeg" width="600" height="600">
@@ -241,7 +247,7 @@ For our first plots, we ran the simulation for each of the three settings with p
 
 ### Part 2: Relative effects of internal branch length and recombination rate on correct topological inference for gene triplets.
 
-Simulation parameters
+For this part we use the simulation parameters as follows:
 
 ```` 
 (defparameter *τ_ab-values* '(1))
@@ -280,21 +286,20 @@ The next three plots give some indication of relative the effects of recombinati
 (defparameter *τ_max* 999999)
 ````
 
-In the next twelve plots, we seek a graphical representation of the anomaly zone for inference of the rooted triplet toplogy under each of the three methods. The first six plots provide a color gradient which indicates the difference P[A(BC)]-P[(AB)C], with x and y axes representing recombination rate in population A and internal branch length of the species tree respectively. Each dot represents an estimate of P[A(BC)]-P[(AB)C] obtained by simulated 10,000 ARGs for loci of length 50bp. 
+In the next plots, we seek a graphical representation of the anomaly zone for inference of the rooted triplet toplogy under each of the three methods. The first six plots provide a color gradient which indicates the difference P[A(BC)]-P[(AB)C], with x and y axes representing recombination rate in population A and internal branch length of the species tree respectively. Each dot represents an estimate of P[A(BC)]-P[(AB)C] obtained by simulated 10,000 ARGs for loci of length 50bp. 
 
 To understand the meaning of the color gradient in the following plots, note that if P[A(BC)]-P[(AB)C]>0 then P[A(BC)]>P[(AB)C], and hence the most frequently-observed gene tree topology will not be the topology A(BC) which matches the species tree. Hence the light blue areas (bottom right on all six graphs) are the area where we expect consensus-based methods to fail.
 
 #### ML-sequence
-<img src="analysis/plot3-mls-th0.01.jpeg" width="600" height="600">
-<img src="analysis/plot3-mls-th0.1.jpeg" width="600" height="600">
+<img src="analysis/plot3-mls-th0.01.jpeg" width="300" height="300"><img src="analysis/plot3-mls-th0.1.jpeg" width="300" height="300">
 
 #### JC-expected
-<img src="analysis/plot3-jce-th0.01.jpeg" width="600" height="600">
-<img src="analysis/plot3-jce-th0.1.jpeg" width="600" height="600">
+<img src="analysis/plot3-jce-th0.01.jpeg" width="300" height="300">
+<img src="analysis/plot3-jce-th0.1.jpeg" width="300" height="300">
 
 #### JC-sequence
-<img src="analysis/plot3-jcs-th0.01.jpeg" width="600" height="600">
-<img src="analysis/plot3-jcs-th0.1.jpeg" width="600" height="600">
+<img src="analysis/plot3-jcs-th0.01.jpeg" width="300" height="300">
+<img src="analysis/plot3-jcs-th0.1.jpeg" width="300" height="300">
 
 Although not visible from the above graphs, in almost all the cases simulated, the region of parameter space satisfying P[A(BC)]<P[(AB)C] tends to coincide with the region satisfying P[A(BC)] > max(P[(AB)C], P[(AC)B]). Exceptions to this appear to be the result of random noise owing to insufficent convergence of the simulation's probability estimates, such as in cases where recombination and internal branch length are both very small and hence all three topologies have inference probabilities extremely close to 1/3. This suggests that **the higher differential rate of recombination occurring in population A compared to other populations tends to make it more probable that A is inferred to be the outgroup in the triplet topology.** However the effect is very small: even when P[A(BC)]-P[(AB)C] is positive, in the the graphs presented we have P[A(BC)]-P[(AB)C]<0.1. [As an additional note, the most extreme values I have found in any simulations are in the realm of P[A(BC)] ~ 0.4 and P[(AB)C] ~ 0.3. In no simulation have I yet observed P[A(BC)] > 0.5.]
 
