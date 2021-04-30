@@ -174,10 +174,10 @@ If you wish to supply your own parameter values, you will need to edit the file
 custom parameter values. Instructions and examples for how to do so are provided
 as commentary in the file itself.
 
-Note that the file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) allows
+The file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) allows
 you to specify a list of values for each parameter. This makes it possible to
 simulate a *range* of parameter regimes, rather than just a single parameter
-  * [ ] regime at a time. By default, when executed with
+regime at a time. By default, when executed with
 [simulate.sh](scripts/simulate.sh), the simulator will loop over *all possible
 combinations* of parameters specified in
 [simulation-parameters.lisp](scripts/simulation-parameters.lisp).
@@ -185,18 +185,21 @@ combinations* of parameters specified in
 #### Step 2b. Run simulate.sh
 
 In the terminal, navigate to the `scripts/` directory and run the command
-
 ```
 bash simulate.sh X
 ```
 where X=0,1, or 2. The input X determines which type of inference method is
 performed, according to the following table:
-
 ```
  X  Inference method
 (0) ML-sequence 
 (1) JC-expected
 (2) JC-sequence
+```
+
+To run the simulation under each of the three methods consecutively, run the command
+```
+bash simulate.sh 0; bash simulate.sh 1; bash simulate.sh 2
 ```
 
 Depending on the parameter values that you chose, the simulation may take some
@@ -224,9 +227,8 @@ Rscript make-plots.R
 
 This will output all the plots to the `analysis/` directory.
 
-Alternatively, you can copy and paste snippets of the code from
-[make-plots.R](scripts/make-plots.R) into an R REPL to generate plots one at a
-time.
+Alternatively, if you wish to do one plot at a time, you can copy and paste
+snippets of the code from [make-plots.R](scripts/make-plots.R) into an R REPL.
 
 
 ## Results
@@ -275,26 +277,38 @@ For this part we use the simulation parameters as follows:
 (defparameter *τ_max* 999999)
 ````
 
-The next three plots give some indication of relative the effects of recombination rate of species A vs internal branch length on the species tree. In these simulations, the recombination rate in populations A and AB were either 0, 5, or 10, and zero recombination elsewhere. The color gradient represents the length of the internal branch in coalescent units (taking values 0.001, 0.01, or 0.1), with light blue being longer internal branch and black being shorter. The somewhat complicated expression for the x-axis is the expected number of recombination events which are ancestral to the sampled sequence from A under the root of the tree. The Y axis the the probability that the gene tree from a single locus is inferred to have topology A(BC) minus the probability that it is inferred to have topology (AB)C. The methods considered here are statistically consistent only if this difference is negative.  While a positive relationship is observed as the recombination rates increase, the effect appears overwhelmed by the relatively small absolute (but order-of-magnitude) increases in branch length.
+The next three plots give some indication of relative the effects of
+recombination rate of species A vs internal branch length on the species tree.
+In these simulations, the recombination rate in populations A and AB were either
+0, 5, or 10, and zero recombination elsewhere. The color gradient represents the
+length of the internal branch in coalescent units (taking values 0.001, 0.01, or
+0.1), with light blue being longer internal branch and black being shorter. The
+somewhat complicated expression for the x-axis is the expected number of
+recombination events which are ancestral to the sampled sequence from A under
+the root of the tree. The Y axis the the probability that the gene tree from a
+single locus is inferred to have topology A(BC) minus the probability that it is
+inferred to have topology (AB)C. The methods considered here are statistically
+consistent only if this difference is negative. While a positive relationship is
+observed as the recombination rates increase, the effect appears overwhelmed by
+the relatively small absolute (but order-of-magnitude) increases in branch
+length.
 
-<img src="analysis/plot2-mls.jpeg" width="600" height="600">
-<img src="analysis/plot2-jce.jpeg" width="600" height="600">
-<img src="analysis/plot2-jcs.jpeg" width="600" height="600">
+<img src="analysis/plot2-mls.jpeg" width="600" height="400"><img src="analysis/plot2-jce.jpeg" width="600" height="400"><img src="analysis/plot2-jcs.jpeg" width="600" height="400">
 
 
 ### Part 3: Identifying the anomaly zones with gradient illustrations
 
-In this and the next section, we attempt to (begin to) characterize the anomaly zone
-for inference of the rooted triplet toplogy under each of the three methods. By
-anomaly zone, we mean the set of parameter regimes for which the triplet topology (AB)C
-matching that of the species tree is not the most likely topology to be exhibited by
-individual gene trees.
+In this and the next section, we attempt to (begin to) characterize the anomaly
+zone for inference of the rooted triplet toplogy under each of the three
+methods. By anomaly zone, we mean the set of parameter regimes for which the
+triplet topology (AB)C matching that of the species tree is not the most likely
+topology to be exhibited by individual gene trees.
 
-A difficulty with having a model with many parameters requires choice about
-which parameters to focus on and which to control. Here we consider two values
-of mutation (θ=0.01 and θ=0.1) and vary only the parameters f and ρ_a (internal
-branch length and recombination rate of population A respectively.). The
-specific parameter ranges we use are as follows:
+A difficulty with having a model with many parameters is that it requires choice
+about which parameters to focus on and which to control. Here we consider two
+values of mutation (θ=0.01 and θ=0.1) and vary only the parameters f and ρ_a,
+the internal branch length and recombination rate of population A respectively.
+The specific parameter ranges we use are as follows:
 
 
 ````
@@ -311,9 +325,17 @@ specific parameter ranges we use are as follows:
 (defparameter *τ_max* 999999)
 ````
 
-The following six plots provide a color gradient which indicates the difference P[A(BC)]-P[(AB)C], with x and y axes representing recombination rate in population A and internal branch length of the species tree respectively. Each dot represents an estimate of P[A(BC)]-P[(AB)C] obtained by simulated 10,000 ARGs for loci of length 50bp. 
+The following six plots provide a color gradient which indicates the difference
+P[A(BC)]-P[(AB)C], with x and y axes representing recombination rate in
+population A and internal branch length of the species tree respectively. Each
+dot represents an estimate of P[A(BC)]-P[(AB)C] obtained by simulated 10,000
+ARGs for loci of length 50bp.
 
-To understand the meaning of the color gradient in the following plots, note that if P[A(BC)]-P[(AB)C]>0 then P[A(BC)]>P[(AB)C], and hence the most frequently-observed gene tree topology will not be the topology A(BC) which matches the species tree. Hence in the light blue areas (bottom right on all six graphs) we expect consensus-based methods to fail.
+To understand the meaning of the color gradient in the following plots, note
+that if P[A(BC)]-P[(AB)C]>0 then P[A(BC)]>P[(AB)C], and hence the most
+frequently-observed gene tree topology will not be the topology A(BC) which
+matches the species tree. Hence in the light blue areas (bottom right on all six
+graphs) we expect consensus-based methods to fail.
 
 #### ML-sequence
 <img src="analysis/plot3-mls-th0.01.jpeg" width="400" height="400"><img src="analysis/plot3-mls-th0.1.jpeg" width="400" height="400">
@@ -330,23 +352,24 @@ with the region satisfying P[A(BC)] > max(P[(AB)C], P[(AC)B]). Exceptions to
 this appear to be the result of random noise owing to insufficent convergence of
 the simulation's probability estimates, such as in cases where recombination and
 internal branch length are both very small and hence all three topologies have
-inference probabilities extremely close to 1/3. This suggests that **the higher
-differential rate of recombination occurring in population A compared to other
-populations tends to make it more probable that A is inferred to be the outgroup
-in the triplet topology.** 
+inference probabilities extremely close to 1/3. This supports the hypothesis
+that higher differential rate of recombination occurring in population A
+compared to other populations tends to make it more probable that A is inferred
+to be the outgroup in the triplet topology.
 
-However the effect of recombination is very small: even when P[A(BC)]-P[(AB)C]
-is positive, in the the graphs presented it is never greater than 0.1. In fact,
-most extreme values I have found in any simulations run thus far are in the
-realm of P[A(BC)] ~ 0.4 and P[(AB)C] ~ 0.3. [Examples of such parameter regimes
-can be found at the end of the document [plotmaker.R](scripts/plotmaker.R).] In
-no simulation have I yet observed P[A(BC)] > 0.5, which suggests that
-majority-rule based inference methods may be robust to the effects observed
-here. On the other hand, the cases where the recombination effect is
-evident---ie those cases where the internal branch length is very small---are
-precisely those cases where we might expect all three triplet topologies to
-occur roughly equally often, so that such methods are likely to be
-indeterminate.
+However these plots, as well as the plots from parts 1 and 2, indicate that
+effect of recombination is very small: even when P[A(BC)]-P[(AB)C] is positive,
+in the the graphs presented it is rarely greater than 0.1 (the lone exception
+can be found on the graph for JC-expected in part 2). The most extreme values I
+have found in any simulations run thus far are in the realm of P[A(BC)] ~ 0.4
+and P[(AB)C] ~ 0.3. [Examples of such parameter regimes can be found at the end
+of the document [plotmaker.R](scripts/plotmaker.R).] In no simulation have I yet
+observed P[A(BC)] > 0.5, which suggests that majority-rule based inference
+methods may be robust to the effects observed here. On the other hand, the cases
+where the recombination effect is evident---ie those cases where the internal
+branch length is very small---are precisely those difficult-to-resolve cases
+where we might expect all three triplet topologies to occur roughly equally
+often, and in that case majority-rule methodsy are likely to be indeterminate.
 
 ### Part 4 -- Discrete illustrationss of anomaly zone for inference of rooted triplet topology
 
@@ -420,6 +443,7 @@ for homo sapiens.
 * Robert C Griffiths and Paul  Marjoram, "An Ancestral Recombination Graph" in Progress in population genetics and human evolution, Springer, 1997. Online at [http://lamastex.org/recomb/ima.pdf](http://lamastex.org/recomb/ima.pdf)
 
 * Hahn, Matthew W., Molecular Population Genetics, Oxford University Press, 2019.
+
 * Hayley C. Lanier, L. Lacey Knowles, "Is Recombination a Problem for Species-Tree Analyses?",  Systematic Biology, Volume 61, Issue 4, July 2012, Pages 691–701, https://doi.org/10.1093/sysbio/syr128
 
 * Tandy Warnow, _Computational Phylogenetics_, Cambridge University Press, 2018. 
