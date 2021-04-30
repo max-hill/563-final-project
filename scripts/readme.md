@@ -45,3 +45,8 @@ themselves.
   plots are output to the `analysis/` directory. This file can be run from bash
   using Rscript (see project.md for instructions), or individual plots can be
   created by copying parts of the code into an R REPL.
+
+* [plotmaker.R](plotmaker.r) is an outdated script that contains some basic
+  notes from when I was learning R to plot and examples of running the simulator
+  functions from the LISP REPL. It is not used by the pipeline and can be safely
+  ignored.
