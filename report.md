@@ -216,7 +216,8 @@ how to use.]
 
 
 ## Results
-![adj](analysis/plot1-jce.jpeg)
+![foo](analysis/plot1-jce.jpeg)
+
 
 ## Sources
 
