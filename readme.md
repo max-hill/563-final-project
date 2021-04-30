@@ -19,5 +19,15 @@ Datafiles are cotnained in the `data/` directory. Plots are contained in the
 
 
 ## Todo
+* Check that all correct datafiles are uploaded.
+
 * Finish project report. 
-* Plan some longer simulations.
+
+* Plan some longer simulations. 
+
+* Redo the simulation from part 2 of the project report with more values for f,
+  more values for recombination rate in A, no recombination in AB, and only one
+  mutation rate).
+  
+* Section 3 plots would be better illustrated by a surface in three dimensions
+  with an intersecting plane given by z:= P[A(BC)]-P[(AB)C]=0
