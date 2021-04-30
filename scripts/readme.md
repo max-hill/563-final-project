@@ -19,8 +19,8 @@ themselves.
      2. **JC-Sequence:** evolutionary (Hamming) distances under the Jukes-Cantor
         1969 model of site evolution. 
 		
-	 Detailed descripton of these three modes, as well as more technical
-	 documentation, can be found as commentary within the file itself.
+  Detailed descripton of these three modes, as well as more technical
+  documentation, can be found as commentary within the file itself.
   
 * [simulation-parameters.lisp](simulation-parameters.lisp) is a document which
   specifies the range of parameter regimes to be simulated when
@@ -41,7 +41,7 @@ themselves.
   [simulate.sh](simulate.sh).
 
 * [make-plots.R](make-plots.R) contains R code for creating all plots in my
-  project report from the simulation data contained in the `data` directory. The
+  project report from the simulation data contained in the `data/` directory. The
   plots are output to the `analysis/` directory. This file can be run from bash
   using Rscript (see project.md for instructions), or individual plots can be
   created by copying parts of the code into an R REPL.

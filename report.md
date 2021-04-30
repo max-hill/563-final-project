@@ -216,9 +216,7 @@ how to use.]
 
 
 ## Results
-![foo](analysis/plot1-jce.jpeg)
-
-<img src="analysis/plot1-jce.jpeg" width="100" height="100">
+<img src="analysis/plot1-jce.jpeg" width="600" height="600">
 
 ## Sources
 

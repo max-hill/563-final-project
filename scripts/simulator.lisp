@@ -244,7 +244,7 @@ integration)."
 
 
 (defun implement-recombination (time edge-sets number-of-base-pairs)
-  "Updates the edge-sets (p,q) appropriately for when a recombination occurs at
+  "Updates the edge-sets (p,q) appropriately for when a coalescence occurs at
 the given time."
   (let* ((recombination-child (randomly-choose (first edge-sets)))
 	 (breakpoint (+ 1 (random (- number-of-base-pairs 1))))
