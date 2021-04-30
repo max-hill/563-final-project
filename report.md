@@ -216,7 +216,151 @@ how to use.]
 
 
 ## Results
+### Part 1: Effect of recombination when all other variables are fixed and internal branch length is small. 
+
+For our first plots, we ran the simulation for each of the three settings with parameters
+
+````
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.01))
+(defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0))
+(defparameter *ρ_abc-values* '(0))
+(defparameter *θ-values* '(.1)) 
+(defparameter *N* 15000)
+(defparameter *L* 500)
+(defparameter *τ_max* 999999)
+````
+
+<img src="analysis/plot1-mls.jpeg" width="600" height="600">
 <img src="analysis/plot1-jce.jpeg" width="600" height="600">
+<img src="analysis/plot1-jcs.jpeg" width="600" height="600">
+
+
+### Part 2: Relative effects of internal branch length and recombination rate on correct topological inference for gene triplets.
+
+Simulation parameters
+
+```` 
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.001 .01 .1))
+(defparameter *ρ_a-values* '(0 5 10))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0 5 10))
+(defparameter *ρ_abc-values* '(0)) 
+(defparameter *θ-values* '(.001 .01 .05 .1 .2))
+(defparameter *N* 10000)
+(defparameter *L* 500)
+(defparameter *τ_max* 999999)
+````
+
+The next three plots give some indication of relative the effects of recombination rate of species A vs internal branch length on the species tree. In these simulations, the recombination rate in populations A and AB were either 0, 5, or 10, and zero recombination elsewhere. The color gradient represents the length of the internal branch in coalescent units (taking values 0.001, 0.01, or 0.1), with light blue being longer internal branch and black being shorter. The somewhat complicated expression for the x-axis is the expected number of recombination events which are ancestral to the sampled sequence from A under the root of the tree. The Y axis the the probability that the gene tree from a single locus is inferred to have topology A(BC) minus the probability that it is inferred to have topology (AB)C. The methods considered here are statistically consistent only if this difference is negative.  While a positive relationship is observed as the recombination rates increase, the effect appears overwhelmed by the relatively small absolute (but order-of-magnitude) increases in branch length.
+
+<img src="analysis/plot2-mls.jpeg" width="600" height="600">
+<img src="analysis/plot2-jce.jpeg" width="600" height="600">
+<img src="analysis/plot2-jcs.jpeg" width="600" height="600">
+
+
+### Part 3: Identifying the anomaly zones with gradient illustrations
+
+````
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.01 .02 .03 .04 .05 .06 .07 .08 .09 .1 .11 .12 .13 .14 .15 .16 .17 .18 .19 .2))
+(defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0))
+(defparameter *ρ_abc-values* '(0)) 
+(defparameter *θ-values* '(.1 .01)) 
+(defparameter *N* 10000) 
+(defparameter *L* 50) 
+(defparameter *τ_max* 999999)
+````
+
+In the next twelve plots, we seek a graphical representation of the anomaly zone for inference of the rooted triplet toplogy under each of the three methods. The first six plots provide a color gradient which indicates the difference P[A(BC)]-P[(AB)C], with x and y axes representing recombination rate in population A and internal branch length of the species tree respectively. Each dot represents an estimate of P[A(BC)]-P[(AB)C] obtained by simulated 10,000 ARGs for loci of length 50bp. 
+
+To understand the meaning of the color gradient in the following plots, note that if P[A(BC)]-P[(AB)C]>0 then P[A(BC)]>P[(AB)C], and hence the most frequently-observed gene tree topology will not be the topology A(BC) which matches the species tree. Hence the light blue areas (bottom right on all six graphs) are the area where we expect consensus-based methods to fail.
+
+#### ML-sequence
+<img src="analysis/plot3-mls-th0.01.jpeg" width="600" height="600">
+<img src="analysis/plot3-mls-th0.1.jpeg" width="600" height="600">
+
+#### JC-expected
+<img src="analysis/plot3-jce-th0.01.jpeg" width="600" height="600">
+<img src="analysis/plot3-jce-th0.1.jpeg" width="600" height="600">
+
+#### JC-sequence
+<img src="analysis/plot3-jcs-th0.01.jpeg" width="600" height="600">
+<img src="analysis/plot3-jcs-th0.1.jpeg" width="600" height="600">
+
+Although not visible from the above graphs, in almost all the cases simulated, the region of parameter space satisfying P[A(BC)]<P[(AB)C] tends to coincide with the region satisfying P[A(BC)] > max(P[(AB)C], P[(AC)B]). Exceptions to this appear to be the result of random noise owing to insufficent convergence of the simulation's probability estimates, such as in cases where recombination and internal branch length are both very small and hence all three topologies have inference probabilities extremely close to 1/3. This suggests that **the higher differential rate of recombination occurring in population A compared to other populations tends to make it more probable that A is inferred to be the outgroup in the triplet topology.** However the effect is very small: even when P[A(BC)]-P[(AB)C] is positive, in the the graphs presented we have P[A(BC)]-P[(AB)C]<0.1. [As an additional note, the most extreme values I have found in any simulations are in the realm of P[A(BC)] ~ 0.4 and P[(AB)C] ~ 0.3. In no simulation have I yet observed P[A(BC)] > 0.5.]
+
+### Part 4 -- Discrete illustrationss of anomaly zone for inference of rooted triplet topology
+
+````
+Parameters same as for part 3.
+````
+
+The following graphs help to illustrate the approximate anomaly zone for
+θ=0.1, where anomaly zone is defined as the set of parameters for which the
+topology ((AB)C) [i.e. matching that of the species tree] is not the most
+likely topology to be exhibited by individual gene trees. In all cases
+observed, the anomaly zone coincides almost entirely with the region in which
+the most likely gene tree topology is (A(BC)). For JCE, exceptions to this
+rule appear to be the result of random noise due to insufficent convergence
+when f is very close to zero. In all cases, the anomaly zone is indicated by
+the color teal.
+
+#### JC-expected
+<img src="analysis/plot4-jce-th0.01.jpeg" width="600" height="600">
+<img src="analysis/plot4-jce-th0.1.jpeg" width="600" height="600">
+
+In these two above plots, the anomaly zone appears larger when θ is smaller.
+This is consistent with analytical results (not included in this project report)
+that I have previously obtained in which I have found that in the JC-expected
+case, the difference P[A(BC)]-P[(AB)C] is a decreasing function of θ on the
+interval [0,3/4].
+
+#### ML-sequence
+<img src="analysis/plot4-mls-th0.01.jpeg" width="600" height="600">
+<img src="analysis/plot4-mls-th0.1.jpeg" width="600" height="600">
+
+#### JC-sequence
+<img src="analysis/plot4-jcs-th0.01.jpeg" width="600" height="600">
+<img src="analysis/plot4-jcs-th0.1.jpeg" width="600" height="600">
+
+
+The anomaly zone for JC-sequence is smaller than that for JC-expected, but
+appears to follow the same qualitative pattern. When the internal branch is
+short (e.g. less than .05 coalescent units), more recombination in population A
+has the effect of producing anomolous gene trees, but this effect is small and
+completely overwhelmed by the effect of increasing the internal branch length.
+
+One difference between this case and that of JCE is that for JCS, the anomaly
+zone appears to decrease in size as we go from θ=0.1 down to θ=0.01. This
+also appears to be the case in the graphs for MLS. However the opposite
+behavior occurs in the JCE case. The most plausible explanation that I have
+for such behavior is that the sample size of the simulation is too low for
+JCS to overcome higher variance in the probability estimates inherent under
+JCS and MLS compared to JCE. This is due to their actually simulating
+sequences with random mutations from the marginal gene trees, whereas JCE
+infers gene tree topologies using expected differences between sequences.
+
+
+The mutation rates of 0.1 and 0.01 considered here are *rate per site per
+coalescent unit*. Typical mutation rates for eukaryotes are on the order of
+10^(-8) or 10^(-9) per site per generation (Hahn 2019, citing M. Lynch, from
+"Evolution of the mutation rate. Trends in Genetics, 2010). Therefore assuming
+an effective population size on the order of 10,000 for human, the mutation
+rates considered here are an order of magnitude or two larger than current
+estimates of human mutation rates. Due to higher variance when mutation rates
+are low, longer simulations with more samples will be requied to characterize an
+anomaly zone for those smaller mutation rates. Nonetheless, these values may be
+realistic for other eukaryotes with effective population sizes larger than that
+for homo sapiens.
 
 ## Sources
 
