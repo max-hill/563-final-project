@@ -215,6 +215,9 @@ scaffolding for automated plot creation using ggplot2, which I am still learning
 how to use.]
 
 
+## Results
+![adj](analysis/plot1-jce.jpeg)
+
 ## Sources
 
 * Robert C Griffiths and Paul  Marjoram, "An Ancestral Recombination Graph" in Progress in population genetics and human evolution, Springer, 1997. Online at [http://lamastex.org/recomb/ima.pdf](http://lamastex.org/recomb/ima.pdf)
