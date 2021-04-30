@@ -158,37 +158,51 @@ I have no idea how to do this on other operatings systems.
 
 ### Step 2. Simulate the Data
 
-To run a simulation using the default simulation parameters (i.e. those
+Since they are reasonably small, I have opted to include all simulated datafiles
+used for this project in the `data` directory. To replicate any particular
+datafile, you will need to run a simluation using the following steps.
+
+
+#### Step 2a. Choose simulation parameters
+
+If you wish to run a simulation using the default simulation parameters (i.e. those already
 specified in the file
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp)), navigate to
-the scripts/ directory and run the command
+[simulation-parameters.lisp](scripts/simulation-parameters.lisp)), then you don't need to do anything and can move to step 2b. 
+
+If you wish to supply your own parameter values, you will need to edit the file
+[simulation-parameters.lisp](scripts/simulation-parameters.lisp) to assign
+custom parameter values. Instructions and examples for how to do so are provided
+as commentary in the file itself.
+
+Note that the file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) allows
+you to specify a list of values for each parameter. This makes it possible to
+simulate a *range* of parameter regimes, rather than just a single parameter
+  * [ ] regime at a time. By default, when executed with
+[simulate.sh](scripts/simulate.sh), the simulator will loop over *all possible
+combinations* of parameters specified in
+[simulation-parameters.lisp](scripts/simulation-parameters.lisp).
+
+#### Step 2b. Run simulate.sh
+
+In the terminal, navigate to the `scripts/` directory and run the command
 
 ```
 bash simulate.sh X
 ```
-
-where X=0,1, or 2. [NOTE: as of 2021-04-09 only X=0 works]. The input X
-determines which type of inference method is performed, according to the
-following table:
+where X=0,1, or 2. The input X determines which type of inference method is
+performed, according to the following table:
 
 ```
  X  Inference method
-(0) Consensus Maximum Likelihood
-(1) R* with sequence distances
-(2) R* with expected distances
+(0) ML-sequence 
+(1) JC-expected
+(2) JC-sequence
 ```
 
-Optionally, if you wish to supply your own parameter values, you will need to edit
-the file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) to
-assign custom parameter values. Instructions and examples are provided as
-commentary in the file itself.
-
-By default the simulator will consider all possible combinations of
-recombination rate assignments specified in
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp), which means
-that it will loop over many parameter regimes. Depending on the values you
-choose, this process may take some time. The simulator will track its progress
-by printing out a number each time it completes a parameter regime.
+Depending on the parameter values that you chose, the simulation may take some
+time. (Replicating the datafiles here will take a few hours or more depending on
+your computer hardware.) The simulator will track its progress by printing out a
+number each time it completes simulation of a parameter regime.
 
 Upon completion, a single .csv file is created, located in the `data/`
 directory. The name of this output file will depend on the choice of parameter
@@ -198,21 +212,21 @@ readme](data/readme.md).
 
 ### Step 3. Generate Plots
 
-After running at least one simulation, we can make plots using the R script
-[make-plots.R](scripts/make-plots.R), which will iterate over all .csv files in
-`data/` and make a plot for each one. To run it, navigate to the `scripts/`
-directory and run the command
+After running at simulations under all parameter regimes specified in parts 1-4
+of the results section, we can automatically generate all plots contained in
+this report by executing the R script [make-plots.R](scripts/make-plots.R). To
+run this file from the command line, navigate to the `scripts/` directory and
+run the command
 
 ```
 Rscript make-plots.R
 ```
 
-This will output a plot, located in the `analysis/` directory.
+This will output all the plots to the `analysis/` directory.
 
-[Note: as of 2021-04-09, running step 3 won't create a particularly intersting
-plot for the default parameter values, but right now provides just the basic
-scaffolding for automated plot creation using ggplot2, which I am still learning
-how to use.]
+Alternatively, you can copy and paste snippets of the code from
+[make-plots.R](scripts/make-plots.R) into an R REPL to generate plots one at a
+time.
 
 
 ## Results
