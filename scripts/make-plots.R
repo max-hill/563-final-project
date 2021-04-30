@@ -185,7 +185,7 @@ ggsave("plot3-jcs-th0.1.jpeg",path="../analysis/")
 df = subset(read.csv("jc-expected-N10000-L50.csv"), θ==0.1)
 p <- df$P.bc>df$P.ab
 q <- df$P.ac>df$P.ab
-anomaly_zone <- p | q
+anomaly_zone <- p | q # the vertical bar | is a vectorized logical 'or'
 plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
     geom_point() + 
     labs(title="Approximate anomaly zone under JC-expected for θ=0.1",x="ρ_a",y="f=τ_abc-τ_ab")
@@ -223,7 +223,7 @@ ggsave("plot4-mls-th0.01.jpeg",path="../analysis/")
 df = subset(read.csv("jc-sequence-N10000-L50.csv"), θ==0.1)
 p <- df$P.bc>df$P.ab
 q <- df$P.ac>df$P.ab
-anomaly_zone <- p | q
+anomaly_zone <- p | q 
 plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
     geom_point() + 
     labs(title="Approximate anomaly zone under JC-sequence for θ=0.1",x="ρ_a",y="f=τ_abc-τ_ab")
