@@ -53,7 +53,7 @@
 #       infer a topology using the rule that the two taxa with the smallest
 #       expected difference are most closely related.
 #
-#   (2) jc-sequences (Hamming distances under the JC69 model of site evolution)
+#   (2) jc-sequence (Hamming distances under the JC69 model of site evolution)
 #
 #       For each parameter do the following four steps *N* times: first,
 #       simulate an ARG with the given parameter regime. Second, for each taxa

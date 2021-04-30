@@ -192,27 +192,9 @@ by printing out a number each time it completes a parameter regime.
 
 Upon completion, a single .csv file is created, located in the `data/`
 directory. The name of this output file will depend on the choice of parameter
-regime and inference type chosen. The csv will have 14 columns, indicated as in
-the following table:
-
-```
-| Column Number | Symbol | Description or definition                       |
-|---------------+--------+-------------------------------------------------|
-|             1 | P-ab   | estimated probability of inferring ((AB)C)      |
-|             2 | P-ac   | estimated probability of inferring ((AC)B)      |
-|             3 | P-bc   | estimated probability of inferring ((BC)A)      |
-|             4 | τ_ab   | divergence time of species A and B              |
-|             5 | τ_abc  | divergence time of species AB and C             |
-|             6 | τ_max  | maximum height of the tree (pick large)         |
-|             7 | ρ_a    | recombination rate in population A              |
-|             8 | ρ_b    | recombination rate in population B              |
-|             9 | ρ_c    | recombination rate in population C              |
-|            10 | ρ_ab   | recombination rate in population AB             |
-|            11 | ρ_abc  | recombination rate in population ABC            |
-|            12 | θ      | mutation rate per site per coalescent unit      |
-|            13 | N      | number of sampled loci (ie # of ARGS simulated) |
-|            14 | L      | length of each locus in base pairs              |
-```
+regime and inference type chosen. For further information, including how to
+interpret the rows and columns of the datafiles, see the [data
+readme](data/readme.md).
 
 ### Step 3. Generate Plots
 

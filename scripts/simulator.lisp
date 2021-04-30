@@ -30,7 +30,7 @@
 
 (defun convert-to-cdf (π)
   "Converts a distribution vector into a cumulative distribution vector.
-  Example: (convert-pdf-to-cdf '(.23 .25 .26 .26))"
+Example: (convert-pdf-to-cdf '(.23 .25 .26 .26))"
   (cdf-aux π nil))
 
 (defun cdf-aux (π cdf-vector)
@@ -42,8 +42,8 @@
 
 (defun draw-exponential (λ)
   "Return a number drawn according to a rate λ exponential random variable.
-  Based on code from https://github.com/tpapp/cl-random. If λ=0, return positive
-  infinity, represented by most-positive-long-float (1.7976931348623157d308)."
+Based on code from https://github.com/tpapp/cl-random. If λ=0, return positive
+infinity, represented by most-positive-long-float (1.7976931348623157d308)."
   (if (zerop λ)
       most-positive-long-float
       (- (/ (log (- 1 (random 1d0))) λ))))
@@ -59,27 +59,25 @@
 ;;       (cons b x)
 ;;       (intervalnn (1+ a) b (cons a x))))
 
-
-
 (defun randomly-choose (x &optional (n 1) (with-replacement nil))
   "Randomly choose n elements from a list x without (or with) replacement. If
-  the number n is unspecified (or n=1), output a single randomly-chosen element.
-  If n>1, output a *list* of elements. By default, the selection of multiple
-  elements is done *without* replacement. Selection *with* replacement can be
-  specified by setting the optional variable 'with-replacement' to a non-nil
-  value."
+the number n is unspecified (or n=1), output a single randomly-chosen element.
+If n>1, output a *list* of elements. By default, the selection of multiple
+elements is done *without* replacement. Selection *with* replacement can be
+specified by setting the optional variable 'with-replacement' to a non-nil
+value."
   (cond ((null x) nil)
 	((= n 1) (nth (random (length x)) x))
 	(t (randomly-choose-several x n with-replacement))))
 
 (defun randomly-choose-several (x &optional (n 1) (with-replacement nil))
   "This is an auxillary function to the function randomly-choose. It outputs a
-  *list* of n elements chosen randomly without (or with) replacement from the
-  list x. It can also be run standalone. The only difference in output compared
-  to randomly-choose occurs when n=1, in which case randomly-choose outputs only
-  the randomly-chosen element, whereas randomly-choose-several outputs a list of
-  length one containing the element. I don't know if that will ever be of
-  interest, but I record it here just in case."
+*list* of n elements chosen randomly without (or with) replacement from the list
+x. It can also be run standalone. The only difference in output compared to
+randomly-choose occurs when n=1, in which case randomly-choose outputs only the
+randomly-chosen element, whereas randomly-choose-several outputs a list of
+length one containing the element. I don't know if that will ever be of
+interest, but I record it here just in case."
   (cond ((null x) nil)
         ((<= n 0) nil)
 	(with-replacement
@@ -145,16 +143,16 @@ given mutation parameter θ"
 
 
 (defun jc-expected-estimate-topology-probabilities (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples number-of-base-pairs)
-    "For each sample, construct an ancestral recombination graph on three species
-  and use it to compute the weighted JC distances d-ab, d-ac, d-bc. Then count
-  the number of samples for which each of the topologies (AB)C, (AC)B, and (BC)A
-  are inferred. Dividing by the total number of samples gives an estimate for
-  the probability of inferring each species tree (with R*/STAR/MDC consensus
-  method). The output takes the form of a 14 comma-separated float numbers: the
-  fraction of samples which estimate the topology as ((AB)C), ((AC)B),
-  and ((BC)A) respectively, in that order, followed by the 11 original inputs to
-  this function. The output is written to standard output (for shell
-  integration)."
+    "For each sample, construct an ancestral recombination graph on three
+species and use it to compute the weighted JC distances d-ab, d-ac, d-bc. Then
+count the number of samples for which each of the topologies (AB)C, (AC)B,
+and (BC)A are inferred. Dividing by the total number of samples gives an
+estimate for the probability of inferring each species tree (with R*/STAR/MDC
+consensus method). The output takes the form of a 14 comma-separated float
+numbers: the fraction of samples which estimate the topology as ((AB)C), 
+((AC)B), and ((BC)A) respectively, in that order, followed by the 11 original
+inputs to this function. The output is written to standard output (for shell
+integration)."
   (let* ((counts
 	   (loop for i from 1 to number-of-samples
 		 for output-edges =  (simulate-three-species
@@ -215,7 +213,7 @@ given mutation parameter θ"
 			 (implement-coalescence t_1 edge-sets))
 		     stop-at-mrca))))
 
-;; COMMENTARY: The input ρ is the recombination paramter. The input t_0 and
+;; COMMENTARY: The input ρ is the recombination parameter. The input t_0 and
 ;; t_end are the starting and ending times of the population. The optional
 ;; variable 'stop-at-mrca' determines whether the process continues simulating
 ;; events in the event that only a single ancestor remains. If this variable is
@@ -263,7 +261,11 @@ the given time."
 
 
 (defun make-recombination-parents (time edge breakpoint)
-  "Creates both parents of a specified recombining child edge. Outputs a list containing the left and right parent, where the left (right) parent contains only genetic labels less than or equal to (greater than) the breakpoint. Working example:  (make-recombination-parents .3 `(.1 ,(interval 1 7) ,(interval 3 6) ,(interval 2 10)) 10)"
+  "Creates both parents of a specified recombining child edge. Outputs a list
+containing the left and right parent, where the left (right) parent contains
+only genetic labels less than or equal to (greater than) the breakpoint. Working
+example: (make-recombination-parents .3 `(.1 ,(interval 1 7) ,(interval 3 6)
+,(interval 2 10)) 10)"
   (let* ((paired-list
 	   (mapcar
 	    #'(lambda (label-set)
@@ -278,7 +280,7 @@ the given time."
 
 (defun make-coalescent-parent (time coalescing-pair)
   "Creates parent edge of two coalescing edges. The input coalescing-edges is of
-  the form (x y) where x and y are the edges"
+the form (x y) where x and y are the edges"
   (let ((edge1 (first coalescing-pair))
 	(edge2 (second coalescing-pair)))
     (list time
@@ -289,7 +291,7 @@ the given time."
 
 (defun implement-coalescence (time edge-sets)
   "Updates the edge-sets (p,q) appropriately for when a recombination occurs at
-  the given time."
+the given time."
   (let* ((coalescing-pair (randomly-choose (first edge-sets) 2))
 	 (coalescent-parent (make-coalescent-parent time coalescing-pair))
 	 (new-p (remove-elements coalescing-pair (cons coalescent-parent (first edge-sets))))
@@ -327,7 +329,10 @@ the given time."
 ;; (time (ml-estimate-topology-probabilities 1 1.01 999999 10 0 0 0 0 .1 100000 100))
 
 (defun list-all-pairwise-marginal-distances (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)
-  "Simulate a tree and return a list of triplets, each corresponding to a base pair on the locus. Each triplet is of the form (t_ab,t_ab,t_bc) where t_xy is the time of mrca of species x and y in marginal gene tree corresponding to the base pair."
+  "Simulate a tree and return a list of triplets, each corresponding to a base
+pair on the locus. Each triplet is of the form (t_ab,t_ab,t_bc) where t_xy is
+the time of mrca of species x and y in marginal gene tree corresponding to the
+base pair."
   (let* ((output-edges (simulate-three-species τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs))
 	 (t_ab-list (compute-marginal-tmrcas 1 2 output-edges number-of-base-pairs))
 	 (t_ac-list (compute-marginal-tmrcas 1 3 output-edges number-of-base-pairs))
@@ -337,8 +342,8 @@ the given time."
 
 
 (defun draw-random-binary-nucleotide ()
-    "Choose 0 or 1 uniformly"
-    (randomly-choose '(0 1)))
+  "Choose 0 or 1 uniformly"
+  (randomly-choose '(0 1)))
 
 (defun binary-mutate (base)
   "Switches 0 to 1 and 1 to zero."
@@ -346,9 +351,9 @@ the given time."
   (logxor base 1))
 
 (defun implement-binary-substitutions-along-edge (edge-length base θ)
-  "Input: an edge length, mutation parameter, and starting base pair.
-  Output: a base pair, possibly different from the starting base, having been
-  subject to mutations"
+  "Input: an edge length, mutation parameter, and starting base pair. Output: a
+base pair, possibly different from the starting base, having been subject to
+mutations"
   (let ((waiting-time
 	  (draw-exponential θ)))
     (if (> waiting-time edge-length)
@@ -360,8 +365,8 @@ the given time."
 
 (defun generate-binary-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
   "Input: mutation parameter and time of MRCA (on a marginal gene tree) for each
-  pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A
-  T C) or (G G C) corresponding to species A, B, and C respectively."
+pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A T
+C) or (G G C) corresponding to species A, B, and C respectively."
   (let* ((min-tmrca (min t_ab t_ac t_bc))
 	 (max-tmrca (max t_ab t_ac t_bc))
 	 (internal-edge-length (- max-tmrca min-tmrca))
@@ -385,10 +390,10 @@ the given time."
 (defun generate-binary-nucleotide-triplets-for-sampled-locus
     (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
   "Generate an ARG, then for each base pair and each pair of species A,B,C,
-   compute the marginal times until MRCA and use those to generate nucleotide
-   sequences for each species. Output is a list of triplets of the form (A A T)
-   or (A C T) where the nth element of the list gives the nth base pair sampled
-   from species A, B and C respectively."
+compute the marginal times until MRCA and use those to generate nucleotide
+sequences for each species. Output is a list of triplets of the form (A A T)
+or (A C T) where the nth element of the list gives the nth base pair sampled
+from species A, B and C respectively."
   (let* ((pairwise-marginal-distances
 	   (list-all-pairwise-marginal-distances
 	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
@@ -434,7 +439,7 @@ G G) (A A T) (G C C))) or (compute-site-pattern-frequencies '((1
 (defun ml-sequence-estimate-topology-probabilities
     (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples
     number-of-base-pairs)
-    "For each sampled locus, construct an ancestral recombination graph on three
+  "For each sampled locus, construct an ancestral recombination graph on three
 species, then compute pairwise distances for each marginal gene tree, then use
 binary Jukes-Cantor process to model evolution of nucleotides on each gene tree,
 thus generating a nucleotide triplet (one nucleotide for each species) for every
@@ -487,8 +492,8 @@ infer a topology for the locus."
 
 (defun draw-random-ATCG-nucleotide (&optional (π '(.25 .25 .25 .25)))
   "Output a nucleotide A,T,C or G according to the given distribution (density)
-  vector π (which should sum to one). By default, if no probability distribution
-  is given, output a uniformly chosen nucleotide."
+vector π (which should sum to one). By default, if no probability distribution
+is given, output a uniformly chosen nucleotide."
   (let ((x (random 1d0))
 	(cdf (convert-to-cdf π)))
     (cond ((< x (first cdf)) "A")
@@ -506,9 +511,9 @@ different letter. The new nucleotide is chosen uniformly."
 
 
 (defun implement-ATCG-substitutions-along-edge (edge-length base θ)
-  "Input: an edge length, mutation parameter, and starting base pair.
-  Output: a base pair, possibly different from the starting base, having been
-  subject to mutations"
+  "Input: an edge length, mutation parameter, and starting base pair. Output: a
+base pair, possibly different from the starting base, having been subject to
+mutations"
   (let ((waiting-time
 	  (draw-exponential θ)))
     (if (> waiting-time edge-length)
@@ -521,8 +526,8 @@ different letter. The new nucleotide is chosen uniformly."
 
 (defun generate-ATCG-nucleotide-for-species-triplet (t_ab t_ac t_bc θ)
   "Input: mutation parameter and time of MRCA (on a marginal gene tree) for each
-  pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A
-  T C) or (G G C) corresponding to species A, B, and C respectively."
+pair of species (from A,B,C). Output: a triplet of nucleotides of the form (A T
+C) or (G G C) corresponding to species A, B, and C respectively."
   (let* ((min-tmrca (min t_ab t_ac t_bc))
 	 (max-tmrca (max t_ab t_ac t_bc))
 	 (internal-edge-length (- max-tmrca min-tmrca))
@@ -546,10 +551,10 @@ different letter. The new nucleotide is chosen uniformly."
 (defun generate-ATCG-nucleotide-triplets-for-sampled-locus
     (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs θ)
   "Generate an ARG, then for each base pair and each pair of species A,B,C,
-   compute the marginal times until MRCA and use those to generate nucleotide
-   sequences for each species. Output is a list of triplets of the form (A A T)
-   or (A C T) where the nth element of the list gives the nth base pair sampled
-   from species A, B and C respectively."
+compute the marginal times until MRCA and use those to generate nucleotide
+sequences for each species. Output is a list of triplets of the form (A A T)
+or (A C T) where the nth element of the list gives the nth base pair sampled
+from species A, B and C respectively."
   (let* ((pairwise-marginal-distances
 	   (list-all-pairwise-marginal-distances
 	    τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc number-of-base-pairs)))
