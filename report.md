@@ -64,12 +64,31 @@ inference method correctly inferred the species tree.
 In order to allow for intralocus recombination, we simulate gene trees using a
 modification of the multispecies coalescent based on an important model of gene
 recombination called the Ancestral Recombination Graph (ARG) introduced by
-Griffiths and Marjoram (1997). In all simulations, the data is generated from a
-known species tree with three species A, B, and C with topology ((AB)C), as this
-allows us to test the correctness of the various inference methods. Restricting
-our analysis to the case of three species is not a significant limitation since
-it is relatively easy to generalize these theoretical results to larger numbers
-of taxa.
+Griffiths and Marjoram (1997). In very rough terms, the ARG is similar to the
+backwards-in-time coalescent but with the added possiblity that in addition to
+pairs of lineages possibly coalescent, inidividual lineages may also 'split'
+(i.e. recombine) in two parent lineages.
+
+### The Species Tree and Other Model Parameters
+In all simulations for this project, the data is generated from a known rooted
+species tree with three species A, B, and C and topology ((AB)C). This is
+illustrated in the picture below. The species tree is assumed to have fixed
+branch lengths, represented by a choice of divergence times τ_ABC and τ_AB.
+There is a universal mutation parameter θ which represents the per-site
+per-coalescent unit mutation rate. Recombination rates a chosen independently
+for each of the five populations A, B, C, AB, and ABC. In principle, the species
+tree is not assumed to have a fixed maximum height (though for the purpose of
+the simulation we make do by choosing the maximum height to be an extremely
+large number: 999999 coalescent units).
+
+<img src="species-tree.jpeg" width="400" height="400">
+
+The reason for generating data from a fixed species tree is that it allows us to
+test the correctness of the various inference methods that we will employ since
+we will know whether or not they 'got it right'. Restricting our analysis to the
+case of three species is not a significant limitation since it is relatively
+easy to generalize these theoretical results to larger numbers of taxa, as we
+discuss in the next subsection.
 
 ### Significance and Connection to Consensus Methods
 
@@ -87,7 +106,7 @@ only if for each triplet of taxa, the most likely gene tree topology matches
 that of the species tree. In symbols, we must have
 
 ```` 
-P[(AB)C] > max( P[(AC)B], P[A(BC)] 
+P[(AB)C] > max( P[(AC)B], P[A(BC)] )
 ```` 
 
 Therefore we shall be interested in simulating the evolution of a locus of DNA
@@ -96,7 +115,7 @@ estimating how frequently the gene tree topology matches that of the species
 tree. As we shall see, the simulations conducted support the existence of a
 nonempty anomaly zone, i.e., a set of parameters for which the above inequality
 does not hold, and hence R* is not guaranteed to converge to the true tree
-topology in the three-taxa case (and hence in the rooted n-taxa case).
+topology in the rooted three-taxa case (and hence in the rooted n-taxa case).
 
 Furthermore, the results from this project also has implications for the
 consistency of quartet-based methods such as ASTRAL, as one can demonstrate
@@ -107,20 +126,20 @@ the existence of an anomaly zone for unrooted quartets as well.
 As noted, the simulation employed in this project seeks to repeatedly model the
 evolution of a locus of DNA consisting of *L* base pairs on a species tree with
 topology ((AB)C) when the possibility of intralocus recombination is present.
-Each time it does this, it seeks to infer a gene tree topology using some method
-from the sequence data generated for the locus.
+Each time it does this, the simulator then tries to infer a gene tree topology
+using some method from the sequence data generated for the locus.
 
 There are three simulation modes, essentially corresponding to three different
 ways of inferring the gene tree topology from the generated data. We shall refer
 to these three modes as **ml-sequence**, **jc-expected**, and **jc-sequence**.
 To be more precise, the three modes differ in both the type of sequence data
-they produce and the way that they infer a 'gene tree' topology from each
+they produce and the way that they infer a gene tree topology from each
 individually simulated locus. All three modes are consensus-based in the sense
 that we assume that the ultimate estimate of the species tree topology is chosen
 to be the most commonly occuring gene tree topology. A detailed description of the
 simulation procedure under each of the three modes is as follows:
 
-  (0) ml-sequence (maximum-likelihood with binary sequences):
+  (0) ml-sequence (= maximum-likelihood with binary sequences):
 
       Given a fixed parameter regime, do the following three steps *N* times:
       first, simulate an ancestral recombation graph (ARG) with the given
@@ -131,7 +150,7 @@ simulation procedure under each of the three modes is as follows:
 	  In particular, the maximum-likelihood tree is obtained from site-frequency
 	  data using results from Yang 2000 (ie Table 4 in that paper).
 
-  (1) jc-expected (expected Hamming distances under the JC69 model of site
+  (1) jc-expected (= expected Hamming distances under the JC69 model of site
                    evolution):
 
       Given a fixed parameter regime, do the following three steps *N* times:
@@ -144,7 +163,7 @@ simulation procedure under each of the three modes is as follows:
       the two taxa with the smallest expected difference are most closely
       related.
 
-  (2) jc-sequence (Hamming distances under the JC69 model of site evolution)
+  (2) jc-sequence (= Hamming distances under the JC69 model of site evolution):
 
       For each parameter do the following four steps *N* times: first,
       simulate an ARG with the given parameter regime. Second, for each taxa
@@ -154,14 +173,15 @@ simulation procedure under each of the three modes is as follows:
       taxa. Fourth, infer a tree topology using the rule that the two taxa
       with the smallest Hamming distance are most closely related.
 
-Having completed (0), (1), or (2), the program then records in the csv the
-proportion of the *N* samples which resulted in correct topological
-inference vs inferred incorrect topologies. That is, for each of the three
-possible topologies ((AB)C), ((AC)B) and ((BC)A), it records the fraction of
-samples for which that topology was inferred. Such information is recorded
-in a single row in the csv, along with the information about the parameter
-regime that was used. The simulator then moves on to the next parameter
-regime and repeat the process to generate the next row of the csv.
+Having completed (0), (1), or (2), the program then records the proportion of
+the *N* samples which resulted in correct topological inference vs inferred
+incorrect topologies. That is, for each of the three possible topologies
+((AB)C), ((AC)B) and ((BC)A), it records the fraction of samples for which that
+topology was inferred. Such information is recorded in a single row in an output
+file in csv format. Additional information about the parameter regime that was
+used is also recorded in the same row of the csv. The simulator then moves on to
+the next parameter regime and repeat the process to generate the next row of the
+csv.
 
 ### Simulation Output
 Running the simulation generates as .csv file located in the `data/` directory.

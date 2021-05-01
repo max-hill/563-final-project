@@ -20,8 +20,6 @@ are contained in the `analysis/` directory.
 
 
 ## Todo
-* Check that all correct datafiles are uploaded.
-
 * Finish project report. 
 
 * Plan some longer simulations. 
