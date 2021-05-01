@@ -2,7 +2,7 @@
 ;;                      recombination and attempt to infer species trees from it
 ;; 
 ;; Author: max hill 
-;; (Last updated 2021-04-28)
+;; (Last updated 2021-04-30)
 
 ;; DESCRIPTION: This file contains all general functions for simulating the
 ;; multispecies coalescent with recombination on a species triplet with topology
