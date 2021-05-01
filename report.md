@@ -81,7 +81,7 @@ tree is not assumed to have a fixed maximum height (though for the purpose of
 the simulation we make do by choosing the maximum height to be an extremely
 large number: 999999 coalescent units).
 
-<img src="species-tree.jpeg" width="400" height="400">
+<img src="species-tree.png" width="400" height="400">
 
 The reason for generating data from a fixed species tree is that it allows us to
 test the correctness of the various inference methods that we will employ since
@@ -381,7 +381,7 @@ conclusions hold:
 
 * this effect grows as the recombination rate increases.
 
-<img src="analysis/plot1-mls.jpeg" width="400" height="400"><img src="analysis/plot1-jce.jpeg" width="400" height="400"><img src="analysis/plot1-jcs.jpeg" width="400" height="400">
+<img src="analysis/plot1-mls.jpeg" width="400" height="400"> <img src="analysis/plot1-jce.jpeg" width="400" height="400"> <img src="analysis/plot1-jcs.jpeg" width="400" height="400">
 
 
 ### Part 2: Relative effects of internal branch length and recombination rate on correct topological inference for gene triplets.
@@ -418,7 +418,7 @@ observed as the recombination rates increase, the effect appears overwhelmed by
 the relatively small absolute (but order-of-magnitude) increases in branch
 length.
 
-<img src="analysis/plot2-mls.jpeg" width="400" height="400"><img src="analysis/plot2-jce.jpeg" width="400" height="400"><img src="analysis/plot2-jcs.jpeg" width="400" height="400">
+<img src="analysis/plot2-mls.jpeg" width="400" height="400"> <img src="analysis/plot2-jce.jpeg" width="400" height="400"> <img src="analysis/plot2-jcs.jpeg" width="400" height="400">
 
 
 ### Part 3: Identifying the anomaly zones with gradient illustrations
@@ -463,13 +463,13 @@ matches the species tree. Hence in the light blue areas (bottom right on all six
 graphs) we expect consensus-based methods to fail.
 
 #### ML-sequence
-<img src="analysis/plot3-mls-th0.01.jpeg" width="400" height="400"><img src="analysis/plot3-mls-th0.1.jpeg" width="400" height="400">
+<img src="analysis/plot3-mls-th0.01.jpeg" width="400" height="400"> <img src="analysis/plot3-mls-th0.1.jpeg" width="400" height="400">
 
 #### JC-expected
-<img src="analysis/plot3-jce-th0.01.jpeg" width="400" height="400"><img src="analysis/plot3-jce-th0.1.jpeg" width="400" height="400">
+<img src="analysis/plot3-jce-th0.01.jpeg" width="400" height="400"> <img src="analysis/plot3-jce-th0.1.jpeg" width="400" height="400">
 
 #### JC-sequence
-<img src="analysis/plot3-jcs-th0.01.jpeg" width="400" height="400"><img src="analysis/plot3-jcs-th0.1.jpeg" width="400" height="400">
+<img src="analysis/plot3-jcs-th0.01.jpeg" width="400" height="400"> <img src="analysis/plot3-jcs-th0.1.jpeg" width="400" height="400">
 
 Although not visible from the above graphs, in all the cases simulated, the
 region of parameter space satisfying P[A(BC)]<P[(AB)C] coincides almost entirely
