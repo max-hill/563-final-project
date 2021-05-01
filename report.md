@@ -1,6 +1,9 @@
 # Project Report
 (Last updated: 2021-04-30)
 
+## Abstract
+In this project I simulate genetic data subject to intralocus recombination under various parameter regimes (mutation rate, species tree branch lengths, recombination rates, etc) in order evaluate the robustness of summary coalescent methods to violations of the "no intralocus recombination" assumption. I demonstrate the existence of an anomaly zone for the inference of rooted triplet tree topologies. The results also suggest that the anomaly zone may persist for some limited biologically plausible situations. Finally the simulations also suggest two factors necessary for anomalous gene trees: (1) very short internal branch length on the species tree, and (2) differential rates of recombination between related species. Additional, more involved simulations will be required to further test and characterize these results. 
+
 ## Background and Research Question
 
 Broadly speaking, phylogenetic inference using summary tree methods involves a
