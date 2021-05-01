@@ -52,6 +52,8 @@ order to better understand the effect of intralocus recombination on species
 tree inference.
 
 ## Methods and Data
+
+### Overview
 In this project we use simulated genetic data, generated under conditions of
 intralocus recombination, to estimate the effectiveness of three inference
 methods under a variety of parameter regimes. We use simulated data because it
@@ -69,44 +71,131 @@ our analysis to the case of three species is not a significant limitation since
 it is relatively easy to generalize these theoretical results to larger numbers
 of taxa.
 
-## Inference methods
+### Significance and Connection to Consensus Methods
+
+We seek to evaluate the performance of consensus-based methods like R* which
+seeks to reconstruct the topology of an n-taxa species tree through
+reconstruction of the triplet topology for each triplet of taxa (by choosing the
+most commonly-observed topology among the corresponding 3-taxa gene trees).
+Under the multispecies coalescent model (i.e. with no intralocus recombination),
+R* is known to consistently estimate of the species tree topology since "for any
+set of 3 taxa, the rooted triple in the species tree is the highest probability
+rooted triple in the gene-tree distribution" (Degnan et al 2009). Indeed,
+assuming that evolutionary process for different loci is i.i.d., it follows by
+the law of large numbers that R* consistently estimates the species tree if and
+only if for each triplet of taxa, the most likely gene tree topology matches
+that of the species tree. In symbols, we must have
+
+```` 
+P[(AB)C] > max( P[(AC)B], P[A(BC)] 
+```` 
+
+Therefore we shall be interested in simulating the evolution of a locus of DNA
+many times independently under the same parameter regime, with the aim of
+estimating how frequently the gene tree topology matches that of the species
+tree. As we shall see, the simulations conducted support the existence of a
+nonempty anomaly zone, i.e., a set of parameters for which the above inequality
+does not hold, and hence R* is not guaranteed to converge to the true tree
+topology in the three-taxa case (and hence in the rooted n-taxa case).
+
+Furthermore, the results from this project also has implications for the
+consistency of quartet-based methods such as ASTRAL, as one can demonstrate
+analytically that the existence of an anomaly zone for rooted triplets implies
+the existence of an anomaly zone for unrooted quartets as well.
+
+### Simulation Description
+As noted, the simulation employed in this project seeks to repeatedly model the
+evolution of a locus of DNA consisting of *L* base pairs on a species tree with
+topology ((AB)C) when the possibility of intralocus recombination is present.
+Each time it does this, it seeks to infer a gene tree topology using some method
+from the sequence data generated for the locus.
+
+There are three simulation modes, essentially corresponding to three different
+ways of inferring the gene tree topology from the generated data. We shall refer
+to these three modes as **ml-sequence**, **jc-expected**, and **jc-sequence**.
+To be more precise, the three modes differ in both the type of sequence data
+they produce and the way that they infer a 'gene tree' topology from each
+individually simulated locus. All three modes are consensus-based in the sense
+that we assume that the ultimate estimate of the species tree topology is chosen
+to be the most commonly occuring gene tree topology. A detailed description of the
+simulation procedure under each of the three modes is as follows:
+
+  (0) ml-sequence (maximum-likelihood with binary sequences):
+
+      Given a fixed parameter regime, do the following three steps *N* times:
+      first, simulate an ancestral recombation graph (ARG) with the given
+      parameter regime. Second, use the ARG to generate binary DNA sequences
+      for each taxa by modeling mutations under the symmetric model of site
+      evolution (ie 1 mutates to 0 and 0 mutates to 1 at equal rates). Third, 
+	  infer a gene tree topology from the sequence data using maximum-likelihood.
+	  In particular, the maximum-likelihood tree is obtained from site-frequency
+	  data using results from Yang 2000 (ie Table 4 in that paper).
+
+  (1) jc-expected (expected Hamming distances under the JC69 model of site
+                   evolution):
+
+      Given a fixed parameter regime, do the following three steps *N* times:
+      first, simulate an ARG with the given parameter regime. Second,
+      conditional on the simulated ARG, and assuming the Jukes-Cantor (1969)
+      model of site evolution, compute the expected Hamming distances between
+      sequences. (This step uses a formula based on coalescent times and
+      locations of recombination events on the ARG and does not require
+      sequences to be generated). Third, infer a topology using the rule that
+      the two taxa with the smallest expected difference are most closely
+      related.
+
+  (2) jc-sequence (Hamming distances under the JC69 model of site evolution)
+
+      For each parameter do the following four steps *N* times: first,
+      simulate an ARG with the given parameter regime. Second, for each taxa
+      generate a nucleotide sequence with possible bases A,T,C, and G by
+      simulating the Jukes-Cantor process on each marginal gene tree of the
+      ARG. Third, compute the Hamming distance between the sequences for each
+      taxa. Fourth, infer a tree topology using the rule that the two taxa
+      with the smallest Hamming distance are most closely related.
+
+Having completed (0), (1), or (2), the program then records in the csv the
+proportion of the *N* samples which resulted in correct topological
+inference vs inferred incorrect topologies. That is, for each of the three
+possible topologies ((AB)C), ((AC)B) and ((BC)A), it records the fraction of
+samples for which that topology was inferred. Such information is recorded
+in a single row in the csv, along with the information about the parameter
+regime that was used. The simulator then moves on to the next parameter
+regime and repeat the process to generate the next row of the csv.
+
+### Simulation Output
+Running the simulation generates as .csv file located in the `data/` directory.
+The name of the output file is generated automatically from the simulation
+parameters used. If a file of the given name already exists, then the results
+will be appended to the existing file. See the [data readme](data/readme.md) for
+more information.
+
+The csv will have 14 columns, indicated in the following table:
+
+```
+| Column | Symbol | Definition                                                           |
+|--------+--------+----------------------------------------------------------------------|
+|      1 | P-ab   | estimated probability of inferring ((AB)C) as the gene tree topology |
+|      2 | P-ac   | estimated probability of inferring ((AC)B) as the gene tree topology |
+|      3 | P-bc   | estimated probability of inferring ((BC)A) as the gene tree topology |
+|      4 | τ_ab   | divergence time of species A and B                                   |
+|      5 | τ_abc  | divergence time of species AB and C                                  |
+|      6 | τ_max  | maximum height of the tree (pick large)                              |
+|      7 | ρ_a    | recombination rate in population A                                   |
+|      8 | ρ_b    | recombination rate in population B                                   |
+|      9 | ρ_c    | recombination rate in population C                                   |
+|     10 | ρ_ab   | recombination rate in population AB                                  |
+|     11 | ρ_abc  | recombination rate in population ABC                                 |
+|     12 | θ      | mutation rate per site per coalescent unit                           |
+|     13 | N      | number of sampled loci (ie number of ARGS simulated)                 |
+|     14 | L      | length of each locus in base pairs                                   |
+```
+
 A brief description of the main steps of each inference method is provided
 below. For each inference method, we repeat the given steps many times in order
 to obtain an estimate of how likely the inference method is to correctly infer
 the true topology (vs the two incorrect topologies) under that parameter regime. 
 (We then repeate this process for many different parameter regimes.)
-
-#### Consensus Maximum Likelihood
-1. Simulate an ARG with parameter regime specified in 'simulation-parameters.lisp'.
-2. Conditional on the simulated ARG, generate a binary 'gene sequence' for each
-   extant species by simulating a symmetric mutational process.
-3. Using the simulated sequences, infer the maximum-likelihood tree topology.
-   This step is performed analytically using site frequency data via the method
-   described in Table 4 of Yang (2000).
-
-#### R* (rooted triples) with sequence distances
-1. Simulate an ARG with parameter regime specified in 'simulation-parameters.lisp'.
-2. Conditional on the simulated ARG, use the Jukes-Cantor (1969) substitution
-   model to generate a sequence (with letters A,T,C,G) for each extant species.
-3. Use the pairwise (Hamming) distances between sequences to infer a species tree
-   topology. In particular, since there are only three species, this is
-   determined by whichever pairwise distance is the smallest.
-
-#### R* (rooted triples) with expected distances
-1. Simulate an ARG with parameter regime specified in 'simulation-parameters.lisp'.
-2. Conditional on the simulated ARG, and assuming the Jukes-Cantor (1969) model
-   of site evolution, compute the expected pairwise uncorrected evolutionary
-   distances between species.
-3. Infer a species tree with R* method based on those expected distances.
-
-
-### Additional method
-An important paper in this area (Lanier and Knowles 2012) concluded that
-intralocus recombination is not a significant source of phylogenetic conflict
-and may be safely disregarded. I would like to replicate some of their analyses
-(using *BEAST) but have not got to that. Preliminary insights from some of the
-simulations I have run lead me to suspect that certain parameter regimes which
-they did not consider in their analysis may be significant.
 
 
 
@@ -159,8 +248,8 @@ I have no idea how to do this on other operatings systems.
 ### Step 2. Simulate the Data
 
 Since they are reasonably small, I have opted to include all simulated datafiles
-used for this project in the `data` directory. To replicate any particular
-datafile, you will need to run a simluation using the following steps.
+used for this project in the `data/` directory. To replicate any particular
+datafile, you will need to run a simulation using the following steps.
 
 
 #### Step 2a. Choose simulation parameters
@@ -232,9 +321,12 @@ snippets of the code from [make-plots.R](scripts/make-plots.R) into an R REPL.
 
 
 ## Results
+The results are organized into four sections based on the nature of the plots produced in simulation runs.
+
+
 ### Part 1: Effect of recombination when all other variables are fixed and internal branch length is small. 
 
-For our first plots, we ran the simulation for each of the three settings with parameters
+For our first plots, we ran the simulation for each of the three settings with parameters:
 
 ````
 (defparameter *τ_ab-values* '(1))
@@ -250,9 +342,22 @@ For our first plots, we ran the simulation for each of the three settings with p
 (defparameter *τ_max* 999999)
 ````
 
-In all three cases we obtained similar a similar result. When the internal branch of the species tree is very small and recombination occurs only in the pendant edge of the species tree corresponding to species A, then the following conclusions hold:
+The range of recombination parameters for ρ_a in this simulation encompasses
+biologically plausible values, with in particular nonviral lineages exhibiting a
+range of 0 to 11 (according to Strumpf and McVean 2003, quoted in Lanier and
+Knowles 2011). The population mutation rate θ may be somewhat higher than
+typical biological data; according to Schierup and Hein (2000), a value of 0.01
+might represent that of a typical nuclear dtaset and 0.05 for viral dataset.
 
-* under even relatively low recombination rates (i.e. less than 5) the probability of a gene tree exhibiting the topology (AB)C which matches that of the species tree is less than the probability of it exhibiting the incorrect topology (AB)C; and 
+In all three cases we obtained similar a similar result. When the internal
+branch of the species tree is very small and recombination occurs only in the
+pendant edge of the species tree corresponding to species A, then the following
+conclusions hold:
+
+* under even relatively low recombination rates (i.e. less than 5) the
+  probability of a gene tree exhibiting the topology (AB)C which matches that of
+  the species tree is less than the probability of it exhibiting the incorrect
+  topology (AB)C; and
 
 * this effect grows as the recombination rate increases.
 
@@ -293,7 +398,7 @@ observed as the recombination rates increase, the effect appears overwhelmed by
 the relatively small absolute (but order-of-magnitude) increases in branch
 length.
 
-<img src="analysis/plot2-mls.jpeg" width="600" height="400"><img src="analysis/plot2-jce.jpeg" width="600" height="400"><img src="analysis/plot2-jcs.jpeg" width="600" height="400">
+<img src="analysis/plot2-mls.jpeg" width="400" height="400"><img src="analysis/plot2-jce.jpeg" width="400" height="400"><img src="analysis/plot2-jcs.jpeg" width="400" height="400">
 
 
 ### Part 3: Identifying the anomaly zones with gradient illustrations
@@ -355,7 +460,7 @@ internal branch length are both very small and hence all three topologies have
 inference probabilities extremely close to 1/3. This supports the hypothesis
 that higher differential rate of recombination occurring in population A
 compared to other populations tends to make it more probable that A is inferred
-to be the outgroup in the triplet topology.
+to be the outgroup in the gene tree topology. 
 
 However these plots, as well as the plots from parts 1 and 2, indicate that
 effect of recombination is very small: even when P[A(BC)]-P[(AB)C] is positive,
@@ -371,7 +476,7 @@ branch length is very small---are precisely those difficult-to-resolve cases
 where we might expect all three triplet topologies to occur roughly equally
 often, and in that case majority-rule methodsy are likely to be indeterminate.
 
-### Part 4 -- Discrete illustrationss of anomaly zone for inference of rooted triplet topology
+### Part 4 -- Discrete illustrations of anomaly zone for inference of rooted triplet topology
 
 ````
 Parameters same as for part 3.
@@ -439,13 +544,28 @@ realistic for other eukaryotes with effective population sizes larger than that
 for homo sapiens.
 
 ## Sources
+* Degnan, James H., Michael DeGiorgio, David Bryant, and Noah A. Rosenberg,
+  "Properties of Consensus Methods for Inferring Species Trees from Gene Trees",
+  Syst Biol. 2009 Feb; 58(1): 35–54. Online at [https://academic.oup.com/sysbio/article/58/1/35/1674751](https://academic.oup.com/sysbio/article/58/1/35/1674751)
 
-* Robert C Griffiths and Paul  Marjoram, "An Ancestral Recombination Graph" in Progress in population genetics and human evolution, Springer, 1997. Online at [http://lamastex.org/recomb/ima.pdf](http://lamastex.org/recomb/ima.pdf)
+* Griffiths and Marjoram, Robert C. and Paul, "An Ancestral Recombination Graph"
+  in Progress in population genetics and human evolution, Springer, 1997. Online
+  at [http://lamastex.org/recomb/ima.pdf](http://lamastex.org/recomb/ima.pdf)
 
 * Hahn, Matthew W., Molecular Population Genetics, Oxford University Press, 2019.
 
-* Hayley C. Lanier, L. Lacey Knowles, "Is Recombination a Problem for Species-Tree Analyses?",  Systematic Biology, Volume 61, Issue 4, July 2012, Pages 691–701, https://doi.org/10.1093/sysbio/syr128
+* Lanier and Knowles, Hayley C. and L. Lacey., "Is Recombination a Problem for
+  Species-Tree Analyses?", Systematic Biology, Volume 61, Issue 4, July 2012,
+  Pages 691–701, https://doi.org/10.1093/sysbio/syr128
 
-* Tandy Warnow, _Computational Phylogenetics_, Cambridge University Press, 2018. 
+* Schierup and Hein, Mikkel H. and Jotun., Consequences of Recombination on
+  Traditional Phylogenetica Analysis, Genetics 156: 879-891, (October 2000).
 
-* Ziheng Yang, Complexity of the simplest phylogenetic estimation problem, Proc Biol Sci. 2000 Jan 22; 267(1439): 109–116. Online at [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/)
+* Strumpf and McVean, M.P.H. and G.A.T., 2003., Estimating recomibnation rates
+  from population-genetic data, Nat. Rev. Genet. 4:959-968
+
+* Warnow, Tandy., _Computational Phylogenetics_, Cambridge University Press, 2018. 
+
+* Yang, Ziheng., Complexity of the simplest phylogenetic estimation problem,
+  Proc Biol Sci. 2000 Jan 22; 267(1439): 109–116. Online at
+  [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/)

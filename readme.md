@@ -14,8 +14,9 @@ For my project report and detailed instructions for reproducing my results, see
 For further information on the scripts used, see the [scripts
 readme](scripts/readme.md).
 
-Datafiles are cotnained in the `data/` directory. Plots are contained in the
-`analysis/` directory.
+For detailed description of the format and structure of the datafiles, the [data
+readme](data/readme.md). Datafiles are cotnained in the `data/` directory. Plots
+are contained in the `analysis/` directory.
 
 
 ## Todo

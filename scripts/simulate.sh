@@ -13,23 +13,29 @@
 # simulation is performed and is described in the DESCRIPTION section below.
 #
 # DESCRIPTION: This file contains the script for running a simulation under each
-# of the parameter regimes specified in the file simulation-parameters.lisp.
-# There are three simulation/inference modes to choose from (see below). The
-# results for each parameter regime consists of information about how well the
-# inference procedure performed (eg how often the correct species tree topology
-# was inferred under that regime). The results for each regime are recorded as a
-# row in an automatically-named output csv file in the data directory.
+# of the parameter regimes specified in the file simulation-parameters.lisp. The
+# simulation seeks to model the evolution of a locus of DNA consisting of *L*
+# base pairs on a species tree with topology ((AB)C) when the possibility of
+# intralocus recombination is present. There are three simulation/inference
+# modes to choose from. The three modes are ml-sequence, jc-expected, and
+# jc-sequence. The results for each parameter regime consists of information
+# about how well the inference procedure performed (eg how often the correct
+# species tree topology was inferred under that regime). The results for each
+# regime are recorded as a row in an automatically-named output csv file in the
+# data directory.
 #
-# The simulation seeks to model the evolution of a locus of DNA consisting of
-# *L* base pairs on a species tree with topology ((AB)C) when the possibility of
-# intralocus recombination is present. Since we seek to evaluate the performance
-# of consensus-based methods like R*, we are especially interested in simulating the
-# evolution of this locus many times under the same parameter regime and
-# recording how frequently the true tree topology ((AB)C) is inferred. 
-#
-# As noted there are three types of simulation to choose from. A full
-# description of the simulation procedure under each of the three cases is as
-# follows:
+
+
+# 
+# There are three simulation modes, essentially corresponding to three different
+# ways of inferring the gene tree topology from the generated data. We shall
+# refer to these three modes as ml-sequence, jc-expected, and jc-sequence. The
+# three modes differ primarily in the type of sequence data they produce and the
+# way that they infer a 'gene tree' topology from each individually simulated
+# locus. All three modes are consensus-based in the sense that we assume that
+# the ultimate estimate of the species tree topology is chosen to be the most
+# commonly occuring gene tree topology. A full description of the simulation
+# procedure under each of the three modes is as follows:
 #
 #   (0) ml-sequence (maximum-likelihood with binary sequences):
 #
@@ -37,21 +43,23 @@
 #       first, simulate an ancestral recombation graph (ARG) with the given
 #       parameter regime. Second, use the ARG to generate binary DNA sequences
 #       for each taxa by modeling mutations under the symmetric model of site
-#       evolution. Third, infer a species tree using maximum-likelihood. In
-#       particular, the maximum-likelihood tree is obtained from site-frequency
-#       data using results from Yang 2000 (ie Table 4 in that paper).
+#       evolution. Third, infer a gene tree topology from the sequence data
+#       using maximum-likelihood. In particular, the maximum-likelihood tree is
+#       obtained from site-frequency data using results from Yang 2000 (ie Table
+#       4 in that paper).
 #
 #   (1) jc-expected (expected Hamming distances under the JC69 model of site
 #                    evolution):
 #
 #       Given a fixed parameter regime, do the following three steps *N* times:
-#       first, simulate an ARG with the given parameter regime, but for reasons
-#       of computational efficiency, we keep track only of the coalescent times
-#       of the ARG's marginal gene trees. Second, using these coalescent times,
-#       compute what would be the expected Hamming distance between sequences of
-#       each species under the Jukes-Cantor 1969 model of site evolution. Third,
-#       infer a topology using the rule that the two taxa with the smallest
-#       expected difference are most closely related.
+#       first, simulate an ARG with the given parameter regime. Second,
+#       conditional on the simulated ARG, and assuming the Jukes-Cantor (1969)
+#       model of site evolution, compute the expected Hamming distances between
+#       sequences. (This step uses a formula based on coalescent times and
+#       locations of recombination events on the ARG and does not require
+#       sequences to be generated). Third, infer a topology using the rule that
+#       the two taxa with the smallest expected difference are most closely
+#       related.
 #
 #   (2) jc-sequence (Hamming distances under the JC69 model of site evolution)
 #
