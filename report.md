@@ -81,7 +81,7 @@ tree is not assumed to have a fixed maximum height (though for the purpose of
 the simulation we make do by choosing the maximum height to be an extremely
 large number: 999999 coalescent units).
 
-<img src="species-tree.png" width="400" height="400">
+<img src="species-tree.png" width="400">
 
 The reason for generating data from a fixed species tree is that it allows us to
 test the correctness of the various inference methods that we will employ since
