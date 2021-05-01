@@ -370,12 +370,12 @@ can be found on the graph for JC-expected in part 2). The most extreme values I
 have found in any simulations run thus far are in the realm of P[A(BC)] ~ 0.4
 and P[(AB)C] ~ 0.3. [Examples of such parameter regimes can be found at the end
 of the document [plotmaker.R](scripts/plotmaker.R).] In no simulation have I yet
-observed P[A(BC)] > 0.5, which suggests that majority-rule based inference
+observed P[A(BC)] > 0.5, which suggests that strict-majority based inference
 methods may be robust to the effects observed here. On the other hand, the cases
-where the recombination effect is evident---ie those cases where the internal
+where the recombination effect is evident---i.e. those cases where the internal
 branch length is very small---are precisely those difficult-to-resolve cases
 where we might expect all three triplet topologies to occur roughly equally
-often, and in that case majority-rule methodsy are likely to be indeterminate.
+often, and in that case such methods are likely to be indeterminate.
 
 ### Part 4 -- Discrete illustrations of anomaly zone for inference of rooted triplet topology
 
