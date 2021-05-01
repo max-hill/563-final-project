@@ -69,28 +69,73 @@ I have no idea how to do this on other operatings systems.
 Since they are reasonably small, I have opted to include all simulated datafiles
 used for this project in the `data/` directory. To replicate any particular
 datafile, you will need to run a simulation using the following steps, using the
-appropriate parameter regime specified in the [project report](report.md).
+appropriate parameter regime specified in the [project report](report.md) (also listed below).
 
 
 #### Step 2a. Choose simulation parameters
 
-If you wish to run a simulation using the default simulation parameters (i.e.
-those already specified in the file
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp)), then you
-don't need to do anything and can move to step 2b.
+Simulation global parameters are specified within the file
+[simulation-parameters.lisp](scripts/simulation-parameters.lisp). If you wish to
+supply your own custom parameter values, you will need to edit this file to
+assign them. Instructions and examples for how to do so are provided as
+commentary in the file itself. (If you want to run the simulation just using the
+parameters already specified in the file, then you don't need to do anything and
+can move to step 2b.)
 
-If you wish to supply your own parameter values, you will need to edit the file
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp) to assign
-custom parameter values. Instructions and examples for how to do so are provided
-as commentary in the file itself.
-
-The file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) allows
-you to specify a list of values for each parameter. This makes it possible to
-simulate a *range* of parameter regimes, rather than just a single parameter
-regime at a time. By default, when executed with
-[simulate.sh](scripts/simulate.sh), the simulator will loop over *all possible
-combinations* of parameters specified in
+Note that the file
+[simulation-parameters.lisp](scripts/simulation-parameters.lisp) allows you to
+specify a *list* of values for each parameter, making it possible to simulate a
+range of parameter regimes, rather than just a single parameter regime at a
+time. By default, when executed with [simulate.sh](scripts/simulate.sh), the
+simulator will loop over *all possible combinations* of parameters specified in
 [simulation-parameters.lisp](scripts/simulation-parameters.lisp).
+
+If you wish to replicated all of the simulations in the project report, you will
+need to do run Step 2b with each each of the three following parameter ranges:
+
+````
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.01))
+(defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0))
+(defparameter *ρ_abc-values* '(0))
+(defparameter *θ-values* '(.1)) 
+(defparameter *N* 15000)
+(defparameter *L* 500)
+(defparameter *τ_max* 999999)
+````
+and
+```` 
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.001 .01 .1))
+(defparameter *ρ_a-values* '(0 5 10))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0 5 10))
+(defparameter *ρ_abc-values* '(0)) 
+(defparameter *θ-values* '(.001 .01 .05 .1 .2))
+(defparameter *N* 10000)
+(defparameter *L* 500)
+(defparameter *τ_max* 999999)
+````
+and
+````
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.01 .02 .03 .04 .05 .06 .07 .08 .09 .1 .11 .12 .13 .14 .15 .16 .17 .18 .19 .2))
+(defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0))
+(defparameter *ρ_abc-values* '(0)) 
+(defparameter *θ-values* '(.1 .01)) 
+(defparameter *N* 10000) 
+(defparameter *L* 50) 
+(defparameter *τ_max* 999999)
+````
+
+
 
 #### Step 2b. Run simulate.sh
 
@@ -106,9 +151,12 @@ performed, according to the following table:
 (1) JC-expected
 (2) JC-sequence
 ```
-Detailed descriptions of these options are found in the [project report](report.md).
 
-To run the simulation under each of the three methods consecutively, run the command
+Detailed descriptions of these options are found in the [project
+report](report.md).
+
+Alternatively, to run the simulation under each of the three methods
+consecutively, run the command
 ```
 bash simulate.sh 0; bash simulate.sh 1; bash simulate.sh 2
 ```
@@ -140,13 +188,14 @@ Rscript make-plots.R
 This will output all the plots to the `analysis/` directory.
 
 Alternatively, if you wish to do one plot at a time, you can copy and paste
-snippets of the code from [make-plots.R](scripts/make-plots.R) into an R REPL.
+snippets of the code from [make-plots.R](scripts/make-plots.R) into an R REPL
+(just make sure you are in the right directory with the correct libraries
+loaded).
 
 
 
 
 ## Todo
-* Finish project report. 
 
 * Plan some longer simulations with smaller mutation rates
 
