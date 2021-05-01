@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 # Author: Max Hill
-# (Last updated 2021-04-28)
+# (Last updated 2021-04-30)
 #
 # INSTRUCTIONS: This file is intended to be run from the command line. To run
 # this script, navigate to the scripts/ directory and run the command 'bash
