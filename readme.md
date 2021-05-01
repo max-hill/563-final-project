@@ -1,5 +1,5 @@
 # Final Project for Phylo-Class 563
-	(Last updated 2021-04-29)
+	(Last updated 2021-04-30)
 
 
 ## Project Overview
@@ -8,15 +8,15 @@ under various parameter regimes (mutation rate, species tree branch lengths,
 recombination rates, etc) in order evaluate the robustness of summary coalescent
 methods to violations of the "no intralocus recombination" assumption.
 
-For my project report and detailed instructions for reproducing my results, see
-[report.md](report.md). To replicate those results, follow the step-by-step
+For my project report and detailed instructions for reproducing my results, see my
+[project report](report.md). To replicate those results, follow the step-by-step
 instructions in the section "reproducing the pipeline" below.
 
 For further information on the scripts used, see the [scripts
 readme](scripts/readme.md).
 
-For detailed description of the format and structure of the datafiles, the [data
-readme](data/readme.md). Datafiles are cotnained in the `data/` directory. Plots
+For detailed description of the format and structure of the datafiles, see the [data
+readme](data/readme.md). Datafiles are contained in the `data/` directory. Plots
 are contained in the `analysis/` directory.
 
 ## Reproducing the pipeline
@@ -106,6 +106,7 @@ performed, according to the following table:
 (1) JC-expected
 (2) JC-sequence
 ```
+Detailed descriptions of these options are found in the [project report](report.md).
 
 To run the simulation under each of the three methods consecutively, run the command
 ```
@@ -122,6 +123,7 @@ directory. The name of this output file will depend on the choice of parameter
 regime and inference type chosen. For further information, including how to
 interpret the rows and columns of the datafiles, see the [data
 readme](data/readme.md).
+
 
 ### Step 3. Generate Plots
 

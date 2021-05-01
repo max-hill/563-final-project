@@ -1,5 +1,5 @@
-# Project Notebook
-(Last updated: 2021-04-09)
+# Project Report
+(Last updated: 2021-04-30)
 
 ## Background and Research Question
 
@@ -67,7 +67,7 @@ recombination called the Ancestral Recombination Graph (ARG) introduced by
 Griffiths and Marjoram (1997). In very rough terms, the ARG is similar to the
 backwards-in-time coalescent but with the added possiblity that in addition to
 pairs of lineages possibly coalescent, inidividual lineages may also 'split'
-(i.e. recombine) in two parent lineages.
+(i.e. recombine) in two parent lineages. 
 
 ### The Species Tree and Other Model Parameters
 In all simulations for this project, the data is generated from a known rooted
@@ -89,6 +89,9 @@ we will know whether or not they 'got it right'. Restricting our analysis to the
 case of three species is not a significant limitation since it is relatively
 easy to generalize these theoretical results to larger numbers of taxa, as we
 discuss in the next subsection.
+
+Other parameters include the number *N* of gene trees to generate per parameter
+regime and the length *L* of each loci.
 
 ### Significance and Connection to Consensus Methods
 
@@ -146,9 +149,14 @@ simulation procedure under each of the three modes is as follows:
       parameter regime. Second, use the ARG to generate binary DNA sequences
       for each taxa by modeling mutations under the symmetric model of site
       evolution (ie 1 mutates to 0 and 0 mutates to 1 at equal rates). Third, 
-	  infer a gene tree topology from the sequence data using maximum-likelihood.
-	  In particular, the maximum-likelihood tree is obtained from site-frequency
-	  data using results from Yang 2000 (ie Table 4 in that paper).
+	  infer a gene tree topology from the sequence data by choosing what would
+	  be the maximum-likelihood tree topology under the multi-species coalescent
+	  with no intralocus recombination. (This case is interesting because it can
+	  tell us what might go wrong if a researcher assumes their sequences have no
+	  intralocus recombination, uses maximum likelihood, and that assumption
+	  turns out to be wrong). In particular, the 'maximum-likelihood' tree is
+	  obtained from site-frequency data using results from Yang 2000(ie Table 4
+	  in that paper). 
 
   (1) jc-expected (= expected Hamming distances under the JC69 model of site
                    evolution):
@@ -180,37 +188,33 @@ incorrect topologies. That is, for each of the three possible topologies
 topology was inferred. Such information is recorded in a single row in an output
 file in csv format. Additional information about the parameter regime that was
 used is also recorded in the same row of the csv. The simulator then moves on to
-the next parameter regime and repeat the process to generate the next row of the
-csv.
+the next parameter regime and repeats the process to generate the next row of
+the csv. For detailed description of the output file see the [data
+readme](data/readme.md)
 
-### Simulation Output
-Running the simulation generates as .csv file located in the `data/` directory.
-The name of the output file is generated automatically from the simulation
-parameters used. If a file of the given name already exists, then the results
-will be appended to the existing file. See the [data readme](data/readme.md) for
-more information.
+### Assumptions and Choice of Models
+The Ancestral Recombination Graph model used has the advantage of allowing for
+intralocus recombination, but it suffers from other assumptions common to the
+multispecies coalescent, such as the assumption of panmixia within species and
+discrete speciation events with no introgression/horizontal gene transfer
+between species. The model here also assumes that recombination events are
+equally likely to occur at any site on the gene locus, which is problematic
+given the existence of recombination hotspots.
 
-The csv will have 14 columns, indicated in the following table:
+Genetic data (e.g. gene sequences) is generated using the Jukes-Cantor 1969
+process or an even simpler symmetric process which generates binary sequences.
+Both the Jukes-Cantor substitution model and the symmetric binary sequence model
+were chosen for simplicity. In particular, the binary sequence process was
+chosen because according to Yang (2000), it is the only case where we can
+compute the maximum-likelihood gene trees explicity from site frequency data.
 
-```
-| Column | Symbol | Definition                                                           |
-|--------+--------+----------------------------------------------------------------------|
-|      1 | P-ab   | estimated probability of inferring ((AB)C) as the gene tree topology |
-|      2 | P-ac   | estimated probability of inferring ((AC)B) as the gene tree topology |
-|      3 | P-bc   | estimated probability of inferring ((BC)A) as the gene tree topology |
-|      4 | τ_ab   | divergence time of species A and B                                   |
-|      5 | τ_abc  | divergence time of species AB and C                                  |
-|      6 | τ_max  | maximum height of the tree (pick large)                              |
-|      7 | ρ_a    | recombination rate in population A                                   |
-|      8 | ρ_b    | recombination rate in population B                                   |
-|      9 | ρ_c    | recombination rate in population C                                   |
-|     10 | ρ_ab   | recombination rate in population AB                                  |
-|     11 | ρ_abc  | recombination rate in population ABC                                 |
-|     12 | θ      | mutation rate per site per coalescent unit                           |
-|     13 | N      | number of sampled loci (ie number of ARGS simulated)                 |
-|     14 | L      | length of each locus in base pairs                                   |
-```
+Both mutational models make very strong assumptions about mutation rates being
+the same at all sites on the genome and at all times in the past. This means,
+for example, that they assume that no sites are conserved more than other side.
 
+As we shall see, another important assumption, made in the choice of simulations
+parameters, is that recombination rates may vary significantly between closely
+related taxa. I do not know the extent to which this is a reasonable or not.
 
 ## Results
 The results are organized into four sections based on the nature of the plots
