@@ -377,7 +377,7 @@ branch length is very small---are precisely those difficult-to-resolve cases
 where we might expect all three triplet topologies to occur roughly equally
 often, and in that case majority-rule methodsy are likely to be indeterminate.
 
-### Part 4 -- Discrete illustrations of anomaly zone for inference of rooted triplet topology
+### Part 4 -- Discrete illustrations of anomaly zone for inference of rooted triplet topology
 
 ````
 Parameters same as for part 3.
@@ -422,13 +422,13 @@ short (e.g. less than .05 coalescent units), more recombination in population A
 has the effect of producing anomolous gene trees, but this effect is small and
 completely overwhelmed by the effect of increasing the internal branch length.
 
-One difference between this case and that of JCE is that for JCS, the anomaly
+One difference between this case and that of JC-expected is that for JC-sequence, the anomaly
 zone appears to decrease in size as we go from θ=0.1 down to θ=0.01. This
-also appears to be the case in the graphs for MLS. However the opposite
-behavior occurs in the JCE case. The most plausible explanation that I have
+also appears to be the case in the graphs for ML0sequence. However the opposite
+behavior occurs in the JC-expected case. The most plausible explanation that I have
 for such behavior is that the sample size of the simulation is too low for
-JCS to overcome higher variance in the probability estimates inherent under
-JCS and MLS compared to JCE. This is due to their actually simulating
+JC-sequence to overcome higher variance in the probability estimates inherent under
+JC-sequence and ML-sequence compared to JC-expected. This is due to their actually simulating
 sequences with random mutations from the marginal gene trees, whereas JCE
 infers gene tree topologies using expected differences between sequences.
 
@@ -444,7 +444,7 @@ anomaly zone for those smaller mutation rates. Nonetheless, these values may be
 realistic for other eukaryotes with effective population sizes larger than that
 for homo sapiens.
 
-## Sources
+## References
 * Degnan, James H., Michael DeGiorgio, David Bryant, and Noah A. Rosenberg,
   "Properties of Consensus Methods for Inferring Species Trees from Gene Trees",
   Syst Biol. 2009 Feb; 58(1): 35–54. Online at [https://academic.oup.com/sysbio/article/58/1/35/1674751](https://academic.oup.com/sysbio/article/58/1/35/1674751)
