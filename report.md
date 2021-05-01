@@ -216,8 +216,8 @@ As we shall see, another important assumption, made in the choice of simulations
 parameters, is that recombination rates may vary significantly between closely
 related taxa. I do not know the extent to which this is a reasonable or not.
 
-## Results
-The results are organized into four sections based on the nature of the plots
+## Results and Discussion
+The results and discussions are organized into four sections based on the nature of the plots
 produced in simulation runs.
 
 
