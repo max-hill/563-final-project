@@ -211,142 +211,16 @@ The csv will have 14 columns, indicated in the following table:
 |     14 | L      | length of each locus in base pairs                                   |
 ```
 
-A brief description of the main steps of each inference method is provided
-below. For each inference method, we repeat the given steps many times in order
-to obtain an estimate of how likely the inference method is to correctly infer
-the true topology (vs the two incorrect topologies) under that parameter regime. 
-(We then repeate this process for many different parameter regimes.)
-
-
-
-
-## Reproducing the pipeline
-To replicate or extend my results, clone this repository and follow the
-step-by-step instructions below.
-
-### Step 1. Setup
-
-
-#### Install SBCL
-We need to install SBCL, the Common Lisp implementation used by our
-simulator. If you are running Ubuntu/Debian, simply run the command
-
-```
-sudo apt-get install sbcl
-```
-
-If you are running OS X, run the command 
-
-```
-brew install sbcl
-```
-
-If you are running a different operating system, instructions can be found at
-[https://lisp-lang.org/learn/getting-started/](https://lisp-lang.org/learn/getting-started/).
-(Note that you do not need to install Quicklisp, Emacs, or SLIME.)
-
-
-#### Install R and ggplot2
-We will use R and the R package ggplot2 to make plots. To install R on Debian (and probably Ubuntu), run the command
-
-```
-sudo apt-get install r-base
-```
-
-More detailed instructions for installing R can be found at [https://cloud.r-project.org/](https://cloud.r-project.org/).
-
-To install the R package ggplot2, run the command
-
-```
-sudo apt-get install r-basesudo su - -c "R -e \"install.packages('ggplot2', repos='http://cran.rstudio.com/')\""
-```
-
-I have no idea how to do this on other operatings systems.
-
-
-
-### Step 2. Simulate the Data
-
-Since they are reasonably small, I have opted to include all simulated datafiles
-used for this project in the `data/` directory. To replicate any particular
-datafile, you will need to run a simulation using the following steps.
-
-
-#### Step 2a. Choose simulation parameters
-
-If you wish to run a simulation using the default simulation parameters (i.e. those already
-specified in the file
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp)), then you don't need to do anything and can move to step 2b. 
-
-If you wish to supply your own parameter values, you will need to edit the file
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp) to assign
-custom parameter values. Instructions and examples for how to do so are provided
-as commentary in the file itself.
-
-The file [simulation-parameters.lisp](scripts/simulation-parameters.lisp) allows
-you to specify a list of values for each parameter. This makes it possible to
-simulate a *range* of parameter regimes, rather than just a single parameter
-regime at a time. By default, when executed with
-[simulate.sh](scripts/simulate.sh), the simulator will loop over *all possible
-combinations* of parameters specified in
-[simulation-parameters.lisp](scripts/simulation-parameters.lisp).
-
-#### Step 2b. Run simulate.sh
-
-In the terminal, navigate to the `scripts/` directory and run the command
-```
-bash simulate.sh X
-```
-where X=0,1, or 2. The input X determines which type of inference method is
-performed, according to the following table:
-```
- X  Inference method
-(0) ML-sequence 
-(1) JC-expected
-(2) JC-sequence
-```
-
-To run the simulation under each of the three methods consecutively, run the command
-```
-bash simulate.sh 0; bash simulate.sh 1; bash simulate.sh 2
-```
-
-Depending on the parameter values that you chose, the simulation may take some
-time. (Replicating the datafiles here will take a few hours or more depending on
-your computer hardware.) The simulator will track its progress by printing out a
-number each time it completes simulation of a parameter regime.
-
-Upon completion, a single .csv file is created, located in the `data/`
-directory. The name of this output file will depend on the choice of parameter
-regime and inference type chosen. For further information, including how to
-interpret the rows and columns of the datafiles, see the [data
-readme](data/readme.md).
-
-### Step 3. Generate Plots
-
-After running at simulations under all parameter regimes specified in parts 1-4
-of the results section, we can automatically generate all plots contained in
-this report by executing the R script [make-plots.R](scripts/make-plots.R). To
-run this file from the command line, navigate to the `scripts/` directory and
-run the command
-
-```
-Rscript make-plots.R
-```
-
-This will output all the plots to the `analysis/` directory.
-
-Alternatively, if you wish to do one plot at a time, you can copy and paste
-snippets of the code from [make-plots.R](scripts/make-plots.R) into an R REPL.
-
 
 ## Results
-The results are organized into four sections based on the nature of the plots produced in simulation runs.
+The results are organized into four sections based on the nature of the plots
+produced in simulation runs.
 
 
 ### Part 1: Effect of recombination when all other variables are fixed and internal branch length is small. 
 
-For our first plots, we ran the simulation for each of the three settings with parameters:
+For our first plots, we ran the simulation for each of the three settings with
+parameters:
 
 ````
 (defparameter *τ_ab-values* '(1))
@@ -587,5 +461,4 @@ for homo sapiens.
 * Warnow, Tandy., _Computational Phylogenetics_, Cambridge University Press, 2018. 
 
 * Yang, Ziheng., Complexity of the simplest phylogenetic estimation problem,
-  Proc Biol Sci. 2000 Jan 22; 267(1439): 109–116. Online at
-  [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/)
+  Proc Biol Sci. 2000 Jan 22; 267(1439): 109–116. Online at [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1690513/)
