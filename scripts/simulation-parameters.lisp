@@ -69,7 +69,7 @@
 (defparameter *θ-values* '(.1 .01)) ; mutation rate
 
 (defparameter *N* 10000) ; sample size (number of sampled loci)
-(defparameter *L* 50) ; locus length (in base pairs)
+(defparameter *L* 500) ; locus length (in base pairs)
 
 
 (defparameter *τ_max* 999999) ; maximum height of species tree.

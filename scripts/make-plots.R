@@ -237,3 +237,81 @@ plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
     geom_point() + 
     labs(title="Approximate anomaly zone under JC-sequence for θ=0.01",x="ρ_a",y="f=τ_abc-τ_ab")
 ggsave("plot4-jcs-th0.01.jpeg",path="../analysis/")
+
+
+
+##______________________________________________________________________________
+##
+## Part 5 -- Discrete illustrationss of anomaly zone for inference of rooted
+##           triplet topology.
+##______________________________________________________________________________
+
+## parameters same as for plot 3,4, but with L=500 rather than L=50
+## made with datafiles in folder 2020-05-14
+
+# JC expected color test
+df = subset(read.csv("jc-expected-N10000-L500.csv"), θ==0.1)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q # the vertical bar | is a vectorized logical 'or'
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone, size = P.bc - P.ab)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under JC-expected for θ=0.1,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("color-test-plot5-jce-th0.1.jpeg",path="../analysis/")
+
+# JC-expected
+df = subset(read.csv("jc-expected-N10000-L500.csv"), θ==0.1)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q # the vertical bar | is a vectorized logical 'or'
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under JC-expected for θ=0.1,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("plot5-jce-th0.1.jpeg",path="../analysis/")
+
+df = subset(read.csv("jc-expected-N10000-L500.csv"), θ==0.01)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under JC-expected for θ=0.01,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("plot5-jce-th0.01.jpeg",path="../analysis/")
+
+### ML-sequence
+df = subset(read.csv("ml-sequence-N10000-L500.csv"), θ==0.1)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under ML-sequence for θ=0.1,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("plot5-mls-th0.1.jpeg",path="../analysis/")
+
+df = subset(read.csv("ml-sequence-N10000-L500.csv"), θ==0.01)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under ML-sequence for θ=0.01,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("plot5-mls-th0.01.jpeg",path="../analysis/")
+
+### JC-sequence
+df = subset(read.csv("jc-sequence-N10000-L500.csv"), θ==0.1)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q 
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under JC-sequence for θ=0.1,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("plot5-jcs-th0.1.jpeg",path="../analysis/")
+
+df = subset(read.csv("jc-sequence-N10000-L500.csv"), θ==0.01)
+p <- df$P.bc>df$P.ab
+q <- df$P.ac>df$P.ab
+anomaly_zone <- p | q
+plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
+    geom_point() + 
+    labs(title="Approximate anomaly zone under JC-sequence for θ=0.01,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
+ggsave("plot5-jcs-th0.01.jpeg",path="../analysis/")
