@@ -8,7 +8,7 @@ under various parameter regimes (mutation rate, species tree branch lengths,
 recombination rates, etc) in order evaluate the robustness of summary coalescent
 methods to violations of the "no intralocus recombination" assumption.
 
-For my project report and detailed instructions for reproducing my results, see my
+For my project report, see
 [project report](report.md). To replicate those results, follow the step-by-step
 instructions in the section "reproducing the pipeline" below.
 
