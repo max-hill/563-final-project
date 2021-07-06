@@ -505,7 +505,24 @@ In this part, we did STEAC with parameters
 
 The results indicate that unlike the other methods, STEAC inferred the correct species tree in all but one case (ρ=10) and at first blush, it looks like there is no relationship between recombination rate and expected pairwise sequence distances. 
 
+### Part 8
 
+Parameters: 
+```
+τ_ab ∈ (1) 
+f ∈ (0.01) 
+τ_max=999999 
+θ ∈ (0.1) 
+N=10000 
+L=500 
+ρ_a ∈ (0 5 10) 
+ρ_b ∈ (0 5 10) 
+ρ_c ∈ (0 5 10) 
+ρ_ab ∈ (0 5 10) 
+ρ_abc ∈ (0)
+```
+
+We run  ```bash simulate.sh 1``` in order to do R* using expected distances with JC69. The aim to see what recombination in other populations than A results in. 
 
 ## References
 * Degnan, James H., Michael DeGiorgio, David Bryant, and Noah A. Rosenberg,

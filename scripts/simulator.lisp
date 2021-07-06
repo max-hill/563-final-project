@@ -295,7 +295,7 @@ the given time."
   (let* ((coalescing-pair (randomly-choose (first edge-sets) 2))
 	 (coalescent-parent (make-coalescent-parent time coalescing-pair))
 	 (new-p (remove-elements coalescing-pair (cons coalescent-parent (first edge-sets))))
-	 (new-q (cons coalescent-parent (second edge-sets)))))
+	 (new-q (cons coalescent-parent (second edge-sets))))
     (progn
 ;      (format t "~%~%COALESCENCE at time ~a~%Two child edges removed: ~a~%                         ~a~%One parent edge created: ~a"
 ;	      time (first coalescing-pair) (second coalescing-pair) coalescent-parent)
