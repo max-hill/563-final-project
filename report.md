@@ -456,14 +456,14 @@ Parameters sames as for part 3 except L=500 rather than L=50
 
 
 #### JC-expected
-<img src="analysis/plot5-jce-th0.01.jpeg" width="600" height="600"> <img src="analysis/plot5-jce-th0.1.jpeg" width="600" height="600">
+<img src="analysis/plot5-jce-th0.01.jpeg" width="400" height="400"> <img src="analysis/plot5-jce-th0.1.jpeg" width="400" height="400">
 
 
 #### ML-sequence
-<img src="analysis/plot5-mls-th0.01.jpeg" width="600" height="600"> <img src="analysis/plot5-mls-th0.1.jpeg" width="600" height="600">
+<img src="analysis/plot5-mls-th0.01.jpeg" width="400" height="400"> <img src="analysis/plot5-mls-th0.1.jpeg" width="400" height="400">
 
 #### JC-sequence
-<img src="analysis/plot5-jcs-th0.01.jpeg" width="600" height="600"> <img src="analysis/plot5-jcs-th0.1.jpeg" width="600" height="600">
+<img src="analysis/plot5-jcs-th0.01.jpeg" width="400" height="400"> <img src="analysis/plot5-jcs-th0.1.jpeg" width="400" height="400">
 
 
 
@@ -481,6 +481,9 @@ Here we repeat the analysis of part 1, with the same parameters, except for τ_a
 (defparameter *L* 500)
 (defparameter *τ_max* 999999) 
 ````
+
+<img src="analysis/plot1=6-mls.jpeg" width="400" height="400"> <img src="analysis/plot6-jce.jpeg" width="400" height="400"> <img src="analysis/plot6-jcs.jpeg" width="400" height="400">
+
 
 
 ### Part 7
