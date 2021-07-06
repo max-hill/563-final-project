@@ -482,7 +482,7 @@ Here we repeat the analysis of part 1, with the same parameters, except for τ_a
 (defparameter *τ_max* 999999) 
 ````
 
-<img src="analysis/plot1=6-mls.jpeg" width="400" height="400"> <img src="analysis/plot6-jce.jpeg" width="400" height="400"> <img src="analysis/plot6-jcs.jpeg" width="400" height="400">
+<img src="analysis/plot16-mls.jpeg" width="400" height="400"> <img src="analysis/plot6-jce.jpeg" width="400" height="400"> <img src="analysis/plot6-jcs.jpeg" width="400" height="400">
 
 
 
