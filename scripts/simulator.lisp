@@ -2,7 +2,7 @@
 ;;                      recombination and attempt to infer species trees from it
 ;; 
 ;; Author: max hill 
-;; (Last updated 2021-04-30)
+;; (Last updated 2021-06-21)
 
 ;; DESCRIPTION: This file contains all general functions for simulating the
 ;; multispecies coalescent with recombination on a species triplet with topology
@@ -295,7 +295,7 @@ the given time."
   (let* ((coalescing-pair (randomly-choose (first edge-sets) 2))
 	 (coalescent-parent (make-coalescent-parent time coalescing-pair))
 	 (new-p (remove-elements coalescing-pair (cons coalescent-parent (first edge-sets))))
-	 (new-q (cons (first coalescing-pair) (cons (second coalescing-pair) (second edge-sets)))))
+	 (new-q (cons coalescent-parent (second edge-sets)))))
     (progn
 ;      (format t "~%~%COALESCENCE at time ~a~%Two child edges removed: ~a~%                         ~a~%One parent edge created: ~a"
 ;	      time (first coalescing-pair) (second coalescing-pair) coalescent-parent)
@@ -509,6 +509,10 @@ different letter. The new nucleotide is chosen uniformly."
 	(ATCG-mutate base)
 	new-base)))
 
+;; (defun ATCG-mutate (base)
+;;   "Mutate nucleotide of the form A,T,C, or G to a different nucleotide of a
+;; different letter. The new nucleotide is chosen uniformly."
+;;   (randomly-choose '("A" "T" "C" "G")))
 
 (defun implement-ATCG-substitutions-along-edge (edge-length base θ)
   "Input: an edge length, mutation parameter, and starting base pair. Output: a
@@ -636,3 +640,49 @@ hamming distance between the sequences from species x and y)."
 ;;  However, to reduce estimate variance, we do not implement this step
 ;;  directly, but instead assing weights of 1/3 to all cases or 1/2 to the two
 ;;  more plausible trees respectively."
+
+
+
+
+;;______________________________________________________________________________
+;;
+;;  --- FUNCTIONS FOR SIMULATING JC69-SEQUENCES + STEAC INFERENCE ---
+;;______________________________________________________________________________
+;; This section last updated 2021-06-21
+
+
+(defun steac-estimate-topology-probabilities
+    (τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc θ number-of-samples
+     number-of-base-pairs)
+  "2021-06-21. For each sampled locus, construct an ancestral recombination graph on three
+species, then compute pairwise distances for each marginal gene tree, then use
+Jukes-Cantor process to model evolution of nucleotides ATCG on each gene tree,
+thus generating a nucleotide triplet (one nucleotide for each species) for every
+site on the locus. Then reformat the data into DNA sequences, one for each
+species (ie dna-X is a string of nucleotides corresponding to the sequence from
+species X). Then count the number pairwise differences between the three
+sequences. Keep a running total of pairwise differences across all samples. (In
+the code below h-xy is the hamming distance between the sequences from species x
+and y; d-xy is the running total). Return the running totals divided by the
+number of samples, as this is an estimate of the expected pairwise differences."
+  (let* ((estimate-of-expected-distances
+	  (loop for i from 1 to number-of-samples
+		for list-of-triplets = (generate-ATCG-nucleotide-triplets-for-sampled-locus
+					τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab ρ_abc
+					number-of-base-pairs θ)
+                for dna-A = (format nil "~{~a~}" (loop for x in list-of-triplets collecting (first x)))
+		for dna-B = (format nil "~{~a~}" (loop for x in list-of-triplets collecting (second x)))
+		for dna-C = (format nil "~{~a~}" (loop for x in list-of-triplets collecting (third x)))
+		summing (hamming-distance dna-A dna-B) into h-ab
+		summing (hamming-distance dna-A dna-C) into h-ac
+		summing (hamming-distance dna-B dna-C) into h-bc
+     	        finally (return
+			  (mapcar #'(lambda (x) (float (/ x number-of-samples)))
+				  (list h-ab h-ac h-bc)))))
+	 (d-ab (first estimate-of-expected-distances))
+	 (d-ac (second estimate-of-expected-distances))
+	 (d-bc (third estimate-of-expected-distances)))
+    (format nil "~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a,~a"
+	    d-ab d-ac d-bc τ_ab τ_abc τ_max ρ_a ρ_b ρ_c ρ_ab
+	    ρ_abc θ number-of-samples number-of-base-pairs)))
+

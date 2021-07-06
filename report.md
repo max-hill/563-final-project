@@ -377,6 +377,8 @@ branch length is very small---are precisely those difficult-to-resolve cases
 where we might expect all three triplet topologies to occur roughly equally
 often, and in that case such methods are likely to be indeterminate.
 
+
+
 ### Part 4 -- Discrete illustrations of anomaly zone for inference of rooted triplet topology
 
 ````
@@ -443,6 +445,64 @@ are low, longer simulations with more samples will be requied to characterize an
 anomaly zone for those smaller mutation rates. Nonetheless, these values may be
 realistic for other eukaryotes with effective population sizes larger than that
 for homo sapiens.
+
+
+
+### Part 5 -- Discrete illustrations of anomaly zone for inference of rooted triplet topology
+
+````
+Parameters sames as for part 3 except L=500 rather than L=50
+````
+
+
+#### JC-expected
+<img src="analysis/plot5-jce-th0.01.jpeg" width="600" height="600"> <img src="analysis/plot5-jce-th0.1.jpeg" width="600" height="600">
+
+
+#### ML-sequence
+<img src="analysis/plot5-mls-th0.01.jpeg" width="600" height="600"> <img src="analysis/plot5-mls-th0.1.jpeg" width="600" height="600">
+
+#### JC-sequence
+<img src="analysis/plot5-jcs-th0.01.jpeg" width="600" height="600"> <img src="analysis/plot5-jcs-th0.1.jpeg" width="600" height="600">
+
+
+
+### Part 6
+Here we repeat the analysis of part 1, with the same parameters, except for τ_ab, for which we consider different values: '(.1 .5 1 2)
+
+````
+(defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0))
+(defparameter *ρ_abc-values* '(0))
+(defparameter *θ-values* '(.1))
+(defparameter *N* 15000)
+(defparameter *L* 500)
+(defparameter *τ_max* 999999) 
+````
+
+
+### Part 7
+In this part, we did STEAC with parameters
+
+```
+(defparameter *τ_ab-values* '(1))
+(defparameter *f-values* '(.01))
+(defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+(defparameter *ρ_b-values* '(0))
+(defparameter *ρ_c-values* '(0))
+(defparameter *ρ_ab-values* '(0))
+(defparameter *ρ_abc-values* '(0))
+(defparameter *θ-values* '(.1))
+(defparameter *N* 40000)
+(defparameter *L* 500)
+(defparameter *τ_max* 999999)
+```
+
+The results indicate that unlike the other methods, STEAC inferred the correct species tree in all but one case (ρ=10) and at first blush, it looks like there is no relationship between recombination rate and expected pairwise sequence distances. 
+
+
 
 ## References
 * Degnan, James H., Michael DeGiorgio, David Bryant, and Noah A. Rosenberg,

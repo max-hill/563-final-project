@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 # Author: Max Hill
-# (Last updated 2021-04-30)
+# (Last updated 2021-06-21)
 #
 # INSTRUCTIONS: This file is intended to be run from the command line. To run
 # this script, navigate to the scripts/ directory and run the command 'bash
@@ -33,17 +33,25 @@
 inference_method="$1"
 
 # Check that the input variable is an element of {0,1,2}.
-if [[ $inference_method != [012] ]]
+if [[ $inference_method != [0123] ]]
 then
     echo "error: argument must be an element of {0,1,2}"
     echo "0 == Yang's maximum likelihood procedure on binary sequences ('ml-sequence')"
     echo "1 == R* inference using *expected* uncorrected sequence distances under JC69 substitution model ('jc-expected')"
     echo "2 == R* inference using uncorrected sequence distances under JC69 substitution model ('jc-sequence')"
+    echo "3 == STEAC inference using uncorrected sequence distances under JC69 substitution model ('steac')"
     exit
 fi
 
 echo "Running a simulation of the following type:"
-echo "Binary Sequences + Yang-ML inference"
+
+if [[ $inference_method == 0 ]]; then echo "Binary Sequences + Yang-ML inference"; fi
+if [[ $inference_method == 1 ]]; then echo "R* using expected distances with JC69"; fi
+if [[ $inference_method == 2 ]]; then echo "R* using sequence data with JC69"; fi
+if [[ $inference_method == 3 ]]; then echo "STEAC with JC69"; fi
+   
+   
+   
 sbcl --noinform --eval '
 (progn (load "simulator.lisp")
        (load "simulation-parameters.lisp")

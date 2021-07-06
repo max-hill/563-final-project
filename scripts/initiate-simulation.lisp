@@ -4,7 +4,7 @@
 ;; simulate.sh.
 ;;
 ;; Author: max hill
-;; (Last updated 2021-04-28)
+;; (Last updated 2021-06-21)
 
 
 ;; Set the progress-tracking counter
@@ -20,14 +20,17 @@
 	((equal "1" *inference_method*)
 	 (format nil "../data/jc-expected-N~a-L~a.csv" *N* *L*))
 	((equal "2" *inference_method*)
-	 (format nil "../data/jc-sequence-N~a-L~a.csv" *N* *L*))))
+	 (format nil "../data/jc-sequence-N~a-L~a.csv" *N* *L*))
+	((equal "3" *inference_method*)
+	 (format nil "../data/steac-N~a-L~a.csv" *N* *L*))))
 
 ;; Identify which function in simulator.lisp to use (depends on the inference
 ;; method)
 (defparameter *main-inference-function*
   (cond ((equal "0" *inference_method*) 'ml-sequence-estimate-topology-probabilities)
 	((equal "1" *inference_method*) 'jc-expected-estimate-topology-probabilities)
-	((equal "2" *inference_method*) 'jc-sequence-estimate-topology-probabilities)))
+	((equal "2" *inference_method*) 'jc-sequence-estimate-topology-probabilities)
+	((equal "3" *inference_method*) 'steac-estimate-topology-probabilities)))
 
 ;; Create the output file and add a header. Give a warning message for when the
 ;; output filename already exists.
@@ -39,7 +42,9 @@
 			    :direction :output
 			    :if-does-not-exist :create
 			    :if-exists :append)
-      (format output "P-ab,P-ac,P-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%")))
+      (if (equal *inference_method* "3")
+	  (format output "Expected d-ab,Expected d-ac,Expected d-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%")
+	  (format output "P-ab,P-ac,P-bc,τ_ab,τ_abc,τ_max,ρ_a,ρ_b,ρ_c,ρ_ab,ρ_abc,θ,N,L~%"))))
 
 ;; Progress indicator message
 (format t "~%~%This will take some time. Progress counter tracks total number of parameter regimes completed (ie number of rows added to output file) so far.")

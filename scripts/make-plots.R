@@ -315,3 +315,47 @@ plot3 = ggplot(df, aes(x = ρ_a, y = τ_abc-τ_ab, color = anomaly_zone)) +
     geom_point() + 
     labs(title="Approximate anomaly zone under JC-sequence for θ=0.01,L=500",x="ρ_a",y="f=τ_abc-τ_ab")
 ggsave("plot5-jcs-th0.01.jpeg",path="../analysis/")
+
+
+
+
+##______________________________________________________________________________
+##
+## Part 6 -- Effect of recombination when all other variables are fixed and
+##          internal branch length is small and τ_ab varies
+##______________________________________________________________________________
+
+## Simulation parameters:
+## (defparameter *τ_ab-values* '(.1 .5 1 2))
+## (defparameter *f-values* '(.01))
+## (defparameter *ρ_a-values* '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20))
+## (defparameter *ρ_b-values* '(0))
+## (defparameter *ρ_c-values* '(0))
+## (defparameter *ρ_ab-values* '(0))
+## (defparameter *ρ_abc-values* '(0))
+## (defparameter *θ-values* '(.1)) 
+## (defparameter *N* 15000)
+## (defparameter *L* 500)
+## (defparameter *τ_max* 999999)
+
+## jc-expected
+df = read.csv("jc-expected-N15000-L500.csv")
+plot1 = ggplot(df, aes(x=ρ_a, y= P.bc - P.ab)) +
+    geom_point() + 
+    labs(title="Recombination effect on most likely inferred gene topology under JC-expected", x="recombination rate in population A",y="Pr[A(BC)]-Pr[(AB)C]")
+ggsave("plot6-jce.jpeg",path="../analysis/")
+
+## jc-sequence
+df = read.csv("jc-sequence-N15000-L500.csv")
+plot1jce = ggplot(df, aes(x=ρ_a, y= P.bc - P.ab)) +
+    geom_point() + 
+    labs(title="Recombination effect on most likely inferred gene topology under JC-sequence",x="recombination rate in population A",y="Pr[A(BC)]-Pr[(AB)C]")
+ggsave("plot6-jcs.jpeg",path="../analysis/")
+
+## ml-sequence
+df = read.csv("ml-sequence-N15000-L500.csv")
+plot1jce = ggplot(df, aes(x=ρ_a, y= P.bc - P.ab)) +
+    geom_point() + 
+    labs(title="Recombination effect on most likely inferred gene topology under ML-sequence",x="recombination rate in population A",y="Pr[A(BC)]-Pr[(AB)C]")
+ggsave("plot6-mls.jpeg",path="../analysis/")
+

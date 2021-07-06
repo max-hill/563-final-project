@@ -50,7 +50,7 @@
 
 (defparameter *τ_ab-values* '(1)) ; age of most recent species divergence
 
-(defparameter *f-values* '(.01 .02 .03 .04 .05 .06 .07 .08 .09 .1 .11 .12 .13 .14 .15 .16 .17 .18 .19 .2))
+(defparameter *f-values* '(.01))
 				 ; f is the internal branch length on the
 				 ; species tree: f=τ_abc-τ_ab.
 
@@ -66,9 +66,9 @@
 				    ; ρ_abc can significantly increase computing
 				    ; time.
 
-(defparameter *θ-values* '(.1 .01)) ; mutation rate
+(defparameter *θ-values* '(.01)) ; mutation rate
 
-(defparameter *N* 10000) ; sample size (number of sampled loci)
+(defparameter *N* 100000) ; sample size (number of sampled loci)
 (defparameter *L* 500) ; locus length (in base pairs)
 
 
